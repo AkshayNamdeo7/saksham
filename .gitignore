@@ -1,0 +1,35 @@
+# --- Secrets & local config ---
+.env
+.env.local
+.env.*.local
+
+# --- Python / Backend ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+.pytest_cache/
+
+# --- Node / Frontend ---
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+
+# --- TypeScript build artifacts ---
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# --- Build artifacts & logs ---
+build/
+coverage/
+*.log
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
