@@ -20,8 +20,8 @@ export default function Calculator() {
 
   const [principal, setPrincipal] = useState(scheme ? Math.min(scheme.max_loan, 140000) : 120000)
   const [rate, setRate] = useState(scheme ? scheme.interest_rate : 4.0)
-  const [tenure, setTenure] = useState(scheme ? Math.round(scheme.tenure_months / 12) : 3)
-  const [tenureUnit, setTenureUnit] = useState<'months' | 'years'>('years')
+  const [tenure, setTenure] = useState(scheme ? scheme.tenure_months : 36)
+  const [tenureUnit, setTenureUnit] = useState<'months' | 'years'>('months')
   const [moratorium, setMoratorium] = useState(scheme ? scheme.moratorium_months : 0)
   const [result, setResult] = useState<LoanResult | null>(null)
   const [loading, setLoading] = useState(false)
@@ -31,11 +31,12 @@ export default function Calculator() {
     if (scheme) {
       setRate(scheme.interest_rate)
       setMoratorium(scheme.moratorium_months)
+      setTenure(scheme.tenure_months)
     }
   }, [scheme])
 
   async function calc() {
-    if (!principal || principal <= 0 || !rate || rate < 0 || !tenure || tenure <= 0) {
+    if (!principal || principal <= 0 || rate < 0 || !tenure || tenure <= 0) {
       setError('Enter valid positive values first.')
       return
     }
