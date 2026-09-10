@@ -21,8 +21,9 @@ export default function RecommendationCard({
   const { t } = useTranslation()
   const meta = STATUS_META[result.eligibility_status]
   const Icon = meta.icon
-  const isDemo = result.is_demo
   const isVerified = result.verification_status === 'verified'
+  const isNeedsReview = result.verification_status === 'needs_review'
+  const hasOfficialSource = !!(result.official_scheme_url || result.source_url)
 
   return (
     <article
@@ -49,10 +50,19 @@ export default function RecommendationCard({
             )}
           </span>
         )}
-        {isDemo && (
+        {isNeedsReview && result.source_name && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+            <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+            {result.source_name}
+            {result.last_verified && (
+              <span className="text-blue-500">· {t('recommendation.lastVerified')}: {result.last_verified}</span>
+            )}
+          </span>
+        )}
+        {isNeedsReview && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
             <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
-            {t('recommendation.demoData')}
+            {t('recommendation.officialVerifyRequired')}
           </span>
         )}
       </div>
@@ -106,7 +116,6 @@ export default function RecommendationCard({
         </div>
 
         <div className="flex shrink-0 flex-col gap-2 lg:w-40">
-          {/* Financials — only show when verified/demo figures exist */}
           {result.max_loan > 0 ? (
             <>
               <div>
@@ -135,37 +144,50 @@ export default function RecommendationCard({
               )}
             </>
           ) : (
-            <p className="text-xs text-slate-400 italic">{t('recommendation.noFinancialData')}</p>
+            <div className="rounded-lg bg-amber-50 p-2">
+              <p className="text-xs font-medium text-amber-700">
+                {t('recommendation.officialVerifyRequired')}
+              </p>
+              <p className="mt-0.5 text-[10px] text-amber-600">
+                {t('recommendation.financialTermsNote')}
+              </p>
+            </div>
           )}
         </div>
       </div>
 
       {/* Official link buttons */}
       <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-        {(result.official_scheme_url || result.source_url) && (
-          <a
-            href={result.official_scheme_url || result.source_url || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-2 text-xs font-medium text-white hover:bg-brand-700"
-          >
-            {t('recommendation.viewOfficial')}
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-          </a>
-        )}
-        {result.official_apply_url ? (
-          <a
-            href={result.official_apply_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-700"
-          >
-            {t('recommendation.applyOfficial')}
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-          </a>
+        {hasOfficialSource ? (
+          <>
+            <a
+              href={result.official_scheme_url || result.source_url || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-2 text-xs font-medium text-white hover:bg-brand-700"
+            >
+              {t('recommendation.viewOfficial')}
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+            </a>
+            {result.official_apply_url ? (
+              <a
+                href={result.official_apply_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-700"
+              >
+                {t('recommendation.applyOfficial')}
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+              </a>
+            ) : (
+              <p className="w-full pt-1 text-xs text-slate-400">
+                {t('recommendation.applicationRouteNote')}
+              </p>
+            )}
+          </>
         ) : (
-          <p className="w-full pt-1 text-xs text-slate-400">
-            {t('recommendation.applicationRouteNote')}
+          <p className="w-full text-xs text-amber-600">
+            {t('recommendation.noOfficialSource')}
           </p>
         )}
       </div>

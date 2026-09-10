@@ -33,6 +33,7 @@ def compute_match(profile: dict, scheme: Scheme) -> dict:
 
     scheme_purpose = getattr(scheme, "purpose", "")
     scheme_category = getattr(scheme, "category", "")
+    is_official = not getattr(scheme, "is_demo", True)
 
     # ---- Purpose match (weight 30) ----
     is_education = purpose == "education"
@@ -59,17 +60,16 @@ def compute_match(profile: dict, scheme: Scheme) -> dict:
             matched.append(
                 f"Annual family income (₹{annual_income:,.0f}) is within the ₹{threshold:,.0f} threshold."
             )
-            reasons.append("Income falls within the configured demo threshold.")
+            reasons.append("Income falls within the scheme income ceiling.")
         elif annual_income is None:
-            warnings.append("Income not provided; verify against the applicable demo threshold.")
+            warnings.append("Income not provided; verify against the applicable income threshold.")
         else:
             unmatched.append(
-                f"Annual family income exceeds the ₹{threshold:,.0f} demo threshold for this scheme."
+                f"Annual family income exceeds the ₹{threshold:,.0f} income threshold for this scheme."
             )
     else:
-        # no income restriction -> treat as satisfied but note verification
         score += 15
-        matched.append("No specific income restriction configured for this demo scheme.")
+        matched.append("No specific income restriction configured for this scheme.")
 
     # ---- Project amount compatibility (weight 20) ----
     if not is_education:
@@ -80,47 +80,61 @@ def compute_match(profile: dict, scheme: Scheme) -> dict:
             cost = requested_loan
         if cost is not None:
             if pmin is not None and cost < pmin:
-                unmatched.append(f"Project cost is below the ₹{pmin:,.0f} minimum demo band.")
+                unmatched.append(f"Project cost is below the ₹{pmin:,.0f} minimum.")
             elif pmax is not None and cost > pmax:
-                unmatched.append(f"Project cost exceeds the ₹{pmax:,.0f} maximum demo band.")
+                unmatched.append(f"Project cost exceeds the ₹{pmax:,.0f} maximum.")
             elif pmin is not None and pmax is not None and pmin <= cost <= pmax:
                 score += 20
                 matched.append(
-                    f"Estimated project cost (₹{cost:,.0f}) is within the ₹{pmin:,.0f}–₹{pmax:,.0f} demo band."
+                    f"Estimated project cost (₹{cost:,.0f}) is within the ₹{pmin:,.0f}–₹{pmax:,.0f} range."
                 )
-                reasons.append("Project cost is within the configured demo range.")
+                reasons.append("Project cost is within the configured range.")
             elif pmax is not None and cost <= pmax:
                 score += 20
-                matched.append("Project cost is within the demo limit.")
-                reasons.append("Project cost is within the configured demo limit.")
-            else:
-                unmatched.append("Project cost not clearly within the demo band.")
-        else:
-            score += 20
-            matched.append("No project cost conflict detected for this demo scheme.")
-    else:
-        # education: check education cost against max loan band
-        if education_cost is not None:
-            if education_cost <= getattr(scheme, "max_loan", 0):
+                matched.append("Project cost is within the scheme limit.")
+                reasons.append("Project cost is within the configured limit.")
+            elif pmin is not None and cost >= pmin:
                 score += 20
-                matched.append("Estimated education cost is within the demo financing limit.")
-                reasons.append("Education expense is within the demo loan limit.")
+                matched.append("Project cost meets the minimum threshold.")
+                reasons.append("Project cost meets the minimum threshold.")
             else:
-                unmatched.append("Estimated education cost exceeds the demo financing limit.")
+                score += 15
+                matched.append("Project cost has no specific band restriction in this scheme.")
         else:
             score += 20
-            matched.append("No education cost conflict detected for this demo scheme.")
+            matched.append("No project cost conflict detected for this scheme.")
+    else:
+        if education_cost is not None:
+            max_loan = getattr(scheme, "max_loan", 0) or 0
+            if max_loan > 0 and education_cost <= max_loan:
+                score += 20
+                matched.append("Estimated education cost is within the financing limit.")
+                reasons.append("Education expense is within the loan limit.")
+            elif max_loan > 0:
+                unmatched.append("Estimated education cost exceeds the financing limit.")
+            else:
+                score += 20
+                matched.append("Education cost will be verified against official scheme limits.")
+        else:
+            score += 20
+            matched.append("No education cost conflict detected for this scheme.")
 
     # ---- Loan limit validation (weight 15) ----
-    max_loan = getattr(scheme, "max_loan", 0)
+    max_loan = getattr(scheme, "max_loan", 0) or 0
     loan_need = requested_loan or project_cost or education_cost
-    if loan_need is not None and loan_need > max_loan > 0:
+    if max_loan > 0 and loan_need is not None and loan_need > max_loan:
         unmatched.append(
-            f"Requested/estimated amount (₹{loan_need:,.0f}) exceeds the ₹{max_loan:,.0f} demo maximum."
+            f"Requested/estimated amount (₹{loan_need:,.0f}) exceeds the ₹{max_loan:,.0f} maximum."
         )
+    elif max_loan > 0 and loan_need is not None:
+        score += 15
+        matched.append(f"Requested amount is within the ₹{max_loan:,.0f} maximum.")
+    elif max_loan == 0 and is_official:
+        score += 15
+        matched.append("Loan limit to be confirmed on the official scheme portal.")
     else:
         score += 15
-        matched.append(f"Requested amount is within the ₹{max_loan:,.0f} demo maximum.")
+        matched.append("No loan amount conflict detected.")
 
     # ---- Education status (weight 5) ----
     if is_education:
@@ -131,7 +145,7 @@ def compute_match(profile: dict, scheme: Scheme) -> dict:
             warnings.append("Education details incomplete; confirm applicable course criteria.")
     else:
         score += 5
-        matched.append("Education status is not a blocking criterion for this demo scheme.")
+        matched.append("Education status is not a blocking criterion for this scheme.")
 
     # ---- Configurable criteria from SchemeRule rows ----
     extra_weights = {"category": 10, "custom": 5}
@@ -162,7 +176,7 @@ def compute_match(profile: dict, scheme: Scheme) -> dict:
     elif not is_education and scheme_category == "education":
         status = "not_eligible"
         hard_block = True
-    elif any("exceeds the" in u or "exceeds" in u for u in unmatched) and score < 70:
+    elif any("exceeds" in u for u in unmatched) and score < 70:
         status = "not_eligible"
         hard_block = True
     elif score >= 70:
@@ -184,8 +198,15 @@ def compute_match(profile: dict, scheme: Scheme) -> dict:
     }
 
 
-def recommend(profile: dict, db: Session, scheme_ids: list[int] | None = None) -> list[dict]:
+def recommend(
+    profile: dict,
+    db: Session,
+    scheme_ids: list[int] | None = None,
+    official_only: bool = False,
+) -> list[dict]:
     query = db.query(Scheme).filter(Scheme.active.is_(True))
+    if official_only:
+        query = query.filter(Scheme.is_demo.is_(False))
     if scheme_ids:
         query = query.filter(Scheme.id.in_(scheme_ids))
     schemes = query.all()

@@ -15,7 +15,8 @@ router = APIRouter(tags=["recommendations"])
 @router.post("")
 def get_recommendations(payload: RecommendRequest, db: Session = Depends(get_db)):
     profile = payload.profile.model_dump()
-    results = recommend(profile, db, payload.scheme_ids)
+    # Always return official (non-demo) schemes for normal users
+    results = recommend(profile, db, payload.scheme_ids, official_only=True)
 
     # persist eligibility check + top recommendation
     check = EligibilityCheck(
@@ -35,7 +36,9 @@ def get_recommendations(payload: RecommendRequest, db: Session = Depends(get_db)
     db.flush()
 
     english_results = []
-    for i, r in enumerate(results[:3]):
+    for i, r in enumerate(results[:10]):
+        if r["match_score"] <= 0:
+            continue
         scheme = db.query(Scheme).filter(Scheme.id == r["scheme_id"]).first()
         if scheme is None:
             continue
@@ -58,8 +61,8 @@ def get_recommendations(payload: RecommendRequest, db: Session = Depends(get_db)
         r["verification_status"] = scheme.verification_status
         english_results.append(r)
 
-        lang = profile.get("language", "en")
         if i == 0:
+            lang = profile.get("language", "en")
             explanation_lang = "hi" if lang == "hi" else "en"
             explanation = ai_service.generate_recommendation_explanation(
                 profile, r, explanation_lang

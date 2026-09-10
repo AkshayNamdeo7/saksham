@@ -145,6 +145,8 @@ export default {
     profilePurpose: 'उद्देश्य',
     profileIncome: 'आय',
     profileLocation: 'स्थान',
+    officialVerifyRequired: 'आधिकारिक सत्यापन आवश्यक',
+    noOfficialSource: 'कोई आधिकारिक स्रोत उपलब्ध नहीं — आवेदन से पहले सरकारी पोर्टल पर सत्यापित करें।',
   },
   schemes: {
     title: 'योजना एक्सप्लोरर',

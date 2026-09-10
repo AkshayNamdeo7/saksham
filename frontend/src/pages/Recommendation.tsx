@@ -8,7 +8,7 @@ import {
   Landmark,
   MapPin,
   RefreshCw,
-  ShieldAlert,
+  ShieldCheck,
 } from 'lucide-react'
 import { api } from '../services/api'
 import { useProfile } from '../context/ProfileContext'
@@ -68,7 +68,7 @@ export default function Recommendation() {
           required_documents: '',
           partner_required: true,
           active: true,
-          is_demo: true,
+          is_demo: false,
           source_name: res.results[0].source_name,
           source_url: res.results[0].source_url,
           official_scheme_url: res.results[0].official_scheme_url,
@@ -100,9 +100,7 @@ export default function Recommendation() {
   const best = results?.[0]
   const others = results?.slice(1) || []
   const hasAnyResults = results && results.length > 0
-  const isDemoProfile = results?.some(r => r.is_demo)
 
-  // Profile summary for header
   const profilePurpose = profileData?.purpose === 'self_employment'
     ? t('eligibility.purposeSelf')
     : profileData?.purpose === 'education'
@@ -120,7 +118,6 @@ export default function Recommendation() {
         <p className="mt-2 text-slate-500">{t('recommendation.subtitle')}</p>
       </div>
 
-      {/* Profile summary ribbon */}
       {profileData && (
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-xs text-slate-500">
           <span className="font-medium text-slate-600">{t('recommendation.profileSummary')}:</span>
@@ -130,14 +127,12 @@ export default function Recommendation() {
         </div>
       )}
 
-      {/* Loading state */}
       {loading && (
         <div className="mt-8">
           <LoadingState message="Finding suitable schemes…" rows={3} />
         </div>
       )}
 
-      {/* Error state */}
       {error && !loading && (
         <div className="mt-8">
           <ErrorState
@@ -147,7 +142,6 @@ export default function Recommendation() {
         </div>
       )}
 
-      {/* No profile */}
       {!loading && !error && !profileData && (
         <div className="mt-16 flex flex-col items-center gap-4 text-center">
           <p className="text-slate-500">{t('eligibility.title')}</p>
@@ -155,18 +149,16 @@ export default function Recommendation() {
         </div>
       )}
 
-      {/* No results returned */}
       {!loading && !error && profileData && results && results.length === 0 && (
         <div className="mt-16 flex flex-col items-center gap-4 text-center">
           <div className="rounded-xl bg-slate-50 p-6">
             <p className="text-sm font-semibold text-slate-700">{t('recommendation.noResults')}</p>
-            <p className="mt-2 text-xs text-slate-500">No schemes matched your profile criteria. Try adjusting your purpose, project type, or location.</p>
+            <p className="mt-2 text-xs text-slate-500">No official schemes matched your profile. Try adjusting your purpose, project type, or location.</p>
           </div>
           <Link to="/eligibility" className="btn-secondary">{t('eligibility.start')}</Link>
         </div>
       )}
 
-      {/* Results */}
       {!loading && !error && hasAnyResults && (
         <div className="mt-8 space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -174,20 +166,17 @@ export default function Recommendation() {
               <Badge tone="green" dot>
                 {results.length} {results.length === 1 ? 'match' : 'matches'}
               </Badge>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+                Official government schemes only
+              </span>
               <button onClick={run} className="btn-ghost text-xs">
                 <RefreshCw className="h-3.5 w-3.5" aria-hidden />
                 Re-run
               </button>
             </div>
-            {isDemoProfile && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
-                <ShieldAlert className="h-3.5 w-3.5" aria-hidden />
-                {t('recommendation.showingDemo')}
-              </span>
-            )}
           </div>
 
-          {/* AI explanation */}
           {best?.ai_explanation && (
             <div className="rounded-2xl border border-brand-100 bg-brand-50 p-5">
               <p className="text-sm font-semibold text-brand-900">AI explanation</p>
@@ -195,12 +184,10 @@ export default function Recommendation() {
             </div>
           )}
 
-          {/* Best match card */}
           {best && (
             <RecommendationCard result={best} rank={1} />
           )}
 
-          {/* Other schemes */}
           {others.length > 0 && (
             <>
               <h2 className="pt-2 text-sm font-semibold uppercase tracking-wide text-slate-400">{t('recommendation.otherSchemes')}</h2>
@@ -210,7 +197,6 @@ export default function Recommendation() {
             </>
           )}
 
-          {/* Financial snapshot — only for best match when data exists */}
           {best && best.max_loan > 0 && (
             <section className="card p-6">
               <p className="text-sm font-semibold text-slate-700">{t('recommendation.snapshot')}</p>
@@ -231,12 +217,10 @@ export default function Recommendation() {
             </section>
           )}
 
-          {/* Verify notice */}
           <div className="rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-800">
             ⚠️ {t('recommendation.officialVerifyNote')}
           </div>
 
-          {/* Next steps */}
           <section className="card p-6">
             <p className="text-sm font-semibold text-slate-700">{t('recommendation.nextSteps')}</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

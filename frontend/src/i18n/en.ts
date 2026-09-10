@@ -147,6 +147,8 @@ export default {
     profilePurpose: 'Purpose',
     profileIncome: 'Income',
     profileLocation: 'Location',
+    officialVerifyRequired: 'Official verification required',
+    noOfficialSource: 'No official source available — verify on the government portal before applying.',
   },
   schemes: {
     title: 'Scheme Explorer',
