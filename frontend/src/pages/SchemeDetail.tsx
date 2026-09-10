@@ -6,10 +6,12 @@ import {
   ArrowLeft,
   Calculator as CalcIcon,
   CheckCircle2,
+  ExternalLink,
   FileText,
   HelpCircle,
   Landmark,
   MapPin,
+  ShieldCheck,
   Wallet,
 } from 'lucide-react'
 import LoadingState from '../components/common/LoadingState'
@@ -60,12 +62,41 @@ export default function SchemeDetail() {
           <div className="flex flex-wrap gap-2">
             <Badge tone="blue">{scheme.category.replace(/_/g, ' ')}</Badge>
             <Badge tone="slate">{scheme.purpose.replace(/_/g, ' ')}</Badge>
+            {scheme.verification_status === 'verified' && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+                {scheme.source_name || 'Verified source'}
+                {scheme.last_verified && <span className="text-emerald-500"> · {scheme.last_verified}</span>}
+              </span>
+            )}
             {scheme.is_demo && <DemoBadge subtle />}
           </div>
           <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">{scheme.name}</h1>
           <p className="mt-2 max-w-2xl text-slate-500">{scheme.description}</p>
         </div>
         <div className="flex flex-col gap-2">
+          {(scheme.official_scheme_url || scheme.source_url) && (
+            <a
+              href={scheme.official_scheme_url || scheme.source_url || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary flex items-center gap-1.5 text-sm"
+            >
+              <ExternalLink className="h-4 w-4" aria-hidden />
+              View Official Scheme
+            </a>
+          )}
+          {scheme.official_apply_url ? (
+            <a
+              href={scheme.official_apply_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700"
+            >
+              <ExternalLink className="h-4 w-4" aria-hidden />
+              Apply on Official Portal
+            </a>
+          ) : null}
           <Link to={`/calculator?scheme=${scheme.id}`} className="btn-secondary text-sm">
             <CalcIcon className="h-4 w-4" aria-hidden />
             {t('schemeDetail.calcEmi')}

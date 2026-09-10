@@ -53,6 +53,14 @@ class Scheme(Base):
     partner_required = Column(Boolean, default=True)
     active = Column(Boolean, default=True)
     is_demo = Column(Boolean, default=True)
+    # Source metadata
+    source_name = Column(String(200), nullable=True)
+    source_url = Column(String(500), nullable=True)
+    official_scheme_url = Column(String(500), nullable=True)
+    official_apply_url = Column(String(500), nullable=True)
+    last_verified = Column(String(50), nullable=True)
+    source_type = Column(String(50), nullable=False, default="demo")  # official_government / demo
+    verification_status = Column(String(50), nullable=False, default="demo")  # verified / demo / needs_review
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

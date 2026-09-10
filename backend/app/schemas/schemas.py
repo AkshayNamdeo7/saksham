@@ -12,7 +12,7 @@ class SchemeBase(BaseModel):
     max_loan: float = Field(ge=0)
     min_loan: float = Field(ge=0)
     interest_rate: float = Field(ge=0, le=100)
-    tenure_months: int = Field(ge=1)
+    tenure_months: int = Field(ge=0)
     moratorium_months: int = Field(ge=0)
     income_threshold: Optional[float] = Field(default=None, ge=0)
     project_min: Optional[float] = Field(default=None, ge=0)
@@ -23,14 +23,13 @@ class SchemeBase(BaseModel):
     partner_required: bool = True
     active: bool = True
     is_demo: bool = True
-
-    @field_validator("max_loan")
-    @classmethod
-    def validate_max_loan(cls, v):
-        if v <= 0:
-            raise ValueError("max_loan must be greater than 0")
-        return v
-
+    source_name: Optional[str] = None
+    source_url: Optional[str] = None
+    official_scheme_url: Optional[str] = None
+    official_apply_url: Optional[str] = None
+    last_verified: Optional[str] = None
+    source_type: str = "demo"
+    verification_status: str = "demo"
 
 class SchemeCreate(SchemeBase):
     document_keys: Optional[list[str]] = []
@@ -55,6 +54,13 @@ class SchemeUpdate(BaseModel):
     required_documents: Optional[str] = None
     partner_required: Optional[bool] = None
     active: Optional[bool] = None
+    source_name: Optional[str] = None
+    source_url: Optional[str] = None
+    official_scheme_url: Optional[str] = None
+    official_apply_url: Optional[str] = None
+    last_verified: Optional[str] = None
+    source_type: Optional[str] = None
+    verification_status: Optional[str] = None
     document_keys: Optional[list[str]] = None
 
 

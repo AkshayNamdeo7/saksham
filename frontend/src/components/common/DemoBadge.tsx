@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import { ShieldAlert } from 'lucide-react'
 
 export default function DemoBadge({ subtle }: { subtle?: boolean }) {
+  const { t } = useTranslation()
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full text-xs font-medium ${
@@ -10,7 +12,7 @@ export default function DemoBadge({ subtle }: { subtle?: boolean }) {
       }`}
     >
       <ShieldAlert className="h-3.5 w-3.5" aria-hidden />
-      Prototype / Demo Data
+      {t('recommendation.demoData')}
     </span>
   )
 }

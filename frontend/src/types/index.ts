@@ -25,6 +25,13 @@ export interface Scheme {
   partner_required: boolean
   active: boolean
   is_demo: boolean
+  source_name: string | null
+  source_url: string | null
+  official_scheme_url: string | null
+  official_apply_url: string | null
+  last_verified: string | null
+  source_type: string
+  verification_status: string
   document_keys: string[]
   rules?: { key: string; value: string; description: string }[]
   supported_partners?: {
@@ -91,6 +98,13 @@ export interface RecommendationResult {
   warnings: string[]
   next_steps: string[]
   is_demo: boolean
+  source_name?: string | null
+  source_url?: string | null
+  official_scheme_url?: string | null
+  official_apply_url?: string | null
+  last_verified?: string | null
+  source_type?: string
+  verification_status?: string
   ai_explanation?: string
   hard_block?: boolean
 }

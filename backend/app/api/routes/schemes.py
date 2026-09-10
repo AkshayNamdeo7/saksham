@@ -68,6 +68,13 @@ def serialize_scheme(scheme, db) -> dict:
         "partner_required": scheme.partner_required,
         "active": scheme.active,
         "is_demo": scheme.is_demo,
+        "source_name": scheme.source_name,
+        "source_url": scheme.source_url,
+        "official_scheme_url": scheme.official_scheme_url,
+        "official_apply_url": scheme.official_apply_url,
+        "last_verified": scheme.last_verified,
+        "source_type": scheme.source_type,
+        "verification_status": scheme.verification_status,
         "document_keys": [d.key for d in scheme.documents],
         "rules": [
             {"key": r.rule_key, "value": r.rule_value, "description": r.description}

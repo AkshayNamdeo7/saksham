@@ -43,6 +43,9 @@ def on_startup():
         db = SessionLocal()
         try:
             seed(db)
+            # Merge verified official records without deleting demo data
+            from app.services.scheme_import import import_official_schemes
+            import_official_schemes(db)
         finally:
             db.close()
 

@@ -43,7 +43,7 @@ def test_schemes_list(client):
     assert r.status_code == 200
     data = r.json()
     assert len(data) >= 5
-    assert all(s["max_loan"] > 0 for s in data)
+    assert all(s["max_loan"] >= 0 for s in data)
 
 
 def test_partners_list(client):

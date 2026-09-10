@@ -49,6 +49,13 @@ def get_recommendations(payload: RecommendRequest, db: Session = Depends(get_db)
         r["income_threshold"] = scheme.income_threshold
         r["purpose"] = scheme.purpose
         r["is_demo"] = scheme.is_demo
+        r["source_name"] = scheme.source_name
+        r["source_url"] = scheme.source_url
+        r["official_scheme_url"] = scheme.official_scheme_url
+        r["official_apply_url"] = scheme.official_apply_url
+        r["last_verified"] = scheme.last_verified
+        r["source_type"] = scheme.source_type
+        r["verification_status"] = scheme.verification_status
         english_results.append(r)
 
         lang = profile.get("language", "en")

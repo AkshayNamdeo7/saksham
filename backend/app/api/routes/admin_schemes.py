@@ -80,6 +80,13 @@ def admin_scheme_dict(s: Scheme) -> dict:
         "partner_required": s.partner_required,
         "active": s.active,
         "is_demo": s.is_demo,
+        "source_name": s.source_name,
+        "source_url": s.source_url,
+        "official_scheme_url": s.official_scheme_url,
+        "official_apply_url": s.official_apply_url,
+        "last_verified": s.last_verified,
+        "source_type": s.source_type,
+        "verification_status": s.verification_status,
         "document_keys": [d.key for d in s.documents],
         "rules": [
             {"key": r.rule_key, "value": r.rule_value, "description": r.description}

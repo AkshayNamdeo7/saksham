@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { ArrowRight, CheckSquare, Square } from 'lucide-react'
+import { ArrowRight, CheckSquare, ShieldCheck, Square } from 'lucide-react'
 import type { Scheme } from '../../types'
 import { formatLakh, formatPercent, tenureLabel, cls } from '../../utils/format'
 import Badge from '../common/Badge'
@@ -51,6 +51,12 @@ export default function SchemeCard({
       <div className="mt-2 flex flex-wrap gap-1.5">
         <Badge tone="blue">{categoryLabel}</Badge>
         <Badge tone="slate">{purposeLabel}</Badge>
+        {scheme.verification_status === 'verified' && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+            <ShieldCheck className="h-3 w-3" aria-hidden />
+            {scheme.source_name || 'Verified'}
+          </span>
+        )}
         {scheme.is_demo && <Badge tone="amber">{t('common.demo')}</Badge>}
       </div>
       <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-slate-500">

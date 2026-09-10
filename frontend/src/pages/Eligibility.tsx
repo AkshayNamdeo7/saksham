@@ -362,7 +362,7 @@ export default function Eligibility() {
                 { label: t('eligibility.age'), value: form.age === '' ? '—' : `${form.age} years` },
                 { label: t('eligibility.annualIncome'), value: formatINR(parseCurrencyInput(form.annual_family_income) || 0) },
                 { label: t('eligibility.requestedLoan'), value: parseCurrencyInput(form.requested_loan) ? formatINR(parseCurrencyInput(form.requested_loan)) : `${t('common.notProvided')} (optional)` },
-                { label: t('eligibility.purpose'), value: t(`eligibility.purpose${String(form.purpose).charAt(0).toUpperCase()}${String(form.purpose).slice(1)}`) },
+                { label: t('eligibility.purpose'), value: t(`eligibility.purpose${form.purpose === 'self_employment' ? 'Self' : form.purpose === 'education' ? 'Education' : 'Business'}`) },
                 ...(isEducation
                   ? [
                       { label: t('eligibility.educationLevel'), value: form.education_level || '—' },
