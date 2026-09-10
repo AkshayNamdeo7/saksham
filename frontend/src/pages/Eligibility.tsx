@@ -127,7 +127,6 @@ export default function Eligibility() {
   }
 
   async function submit() {
-    if (step === STEPS - 1) return
     if (!validate(step)) return
     setSaving(true)
     try {
