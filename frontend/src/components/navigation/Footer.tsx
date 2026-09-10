@@ -24,9 +24,7 @@ export default function Footer() {
         <div className="grid gap-8 md:grid-cols-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-base font-extrabold text-white">
-                स
-              </span>
+              <img src="/logo.jpeg" alt="Saksham logo" className="h-8 w-8 rounded-lg object-cover" />
               <span className="text-lg font-extrabold text-navy">Saksham</span>
             </div>
             <p className="mt-3 max-w-xs text-sm text-slate-500">

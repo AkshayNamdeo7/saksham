@@ -34,7 +34,7 @@ export default function AdminLayout() {
     <div className="flex min-h-screen bg-slate-100">
       <aside className="hidden w-60 shrink-0 flex-col bg-navy text-white md:flex">
         <div className="flex items-center gap-2 px-5 py-5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-lg font-extrabold">स</span>
+          <img src="/logo.jpeg" alt="Saksham logo" className="h-9 w-9 rounded-xl object-cover" />
           <div>
             <p className="font-bold leading-none">Saksham Admin</p>
             <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-400">Prototype console</p>
