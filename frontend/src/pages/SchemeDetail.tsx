@@ -41,6 +41,7 @@ export default function SchemeDetail() {
   if (!data) return null
 
   const scheme = data
+  const isSupport = scheme.is_loan === false
 
   const steps = [
     'Complete the eligibility check',
@@ -105,14 +106,22 @@ export default function SchemeDetail() {
               Apply on Official Portal
             </a>
           ) : null}
-          <Link to={`/calculator?scheme=${scheme.id}`} className="btn-secondary text-sm">
-            <CalcIcon className="h-4 w-4" aria-hidden />
-            {t('schemeDetail.calcEmi')}
-          </Link>
-          <Link to={`/partners?scheme=${scheme.id}`} className="btn-primary text-sm">
-            <MapPin className="h-4 w-4" aria-hidden />
-            {t('schemeDetail.findPartner')}
-          </Link>
+          {isSupport ? (
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white">
+              Support programme
+            </div>
+          ) : (
+            <>
+              <Link to={`/calculator?scheme=${scheme.id}`} className="btn-secondary text-sm">
+                <CalcIcon className="h-4 w-4" aria-hidden />
+                {t('schemeDetail.calcEmi')}
+              </Link>
+              <Link to={`/partners?scheme=${scheme.id}`} className="btn-primary text-sm">
+                <MapPin className="h-4 w-4" aria-hidden />
+                {t('schemeDetail.findPartner')}
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
@@ -120,22 +129,29 @@ export default function SchemeDetail() {
         ⚠️ {t('common.officialVerify')} — {t('common.demoNotice')}
       </div>
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { icon: Wallet, label: t('schemeDetail.financing'), value: formatLakh(scheme.max_loan) },
-          { icon: Landmark, label: t('schemeDetail.interest'), value: formatInterest(scheme.interest_rate, scheme.interest_display, scheme.interest_rate_type) },
-          { icon: CheckCircle2, label: t('schemeDetail.tenure'), value: tenureLabel(scheme.tenure_months) },
-          { icon: HelpCircle, label: t('schemeDetail.moratorium'), value: tenureLabel(scheme.moratorium_months) },
-        ].map((x) => (
-          <div key={x.label} className="card p-5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
-              <x.icon className="h-4.5 w-4.5" aria-hidden />
-            </span>
-            <p className="mt-3 text-[11px] uppercase tracking-wide text-slate-400">{x.label}</p>
-            <p className="tnum mt-0.5 text-lg font-bold text-slate-900">{x.value}</p>
-          </div>
-        ))}
-      </section>
+      {isSupport ? (
+        <section className="mt-8 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-sm text-brand-800">
+          This is a non-loan support programme — skill, training or livelihood
+          assistance under official guidelines. Financial loan terms do not apply.
+        </section>
+      ) : (
+        <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { icon: Wallet, label: t('schemeDetail.financing'), value: formatLakh(scheme.max_loan) },
+            { icon: Landmark, label: t('schemeDetail.interest'), value: formatInterest(scheme.interest_rate, scheme.interest_display, scheme.interest_rate_type) },
+            { icon: CheckCircle2, label: t('schemeDetail.tenure'), value: tenureLabel(scheme.tenure_months) },
+            { icon: HelpCircle, label: t('schemeDetail.moratorium'), value: tenureLabel(scheme.moratorium_months) },
+          ].map((x) => (
+            <div key={x.label} className="card p-5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
+                <x.icon className="h-4.5 w-4.5" aria-hidden />
+              </span>
+              <p className="mt-3 text-[11px] uppercase tracking-wide text-slate-400">{x.label}</p>
+              <p className="tnum mt-0.5 text-lg font-bold text-slate-900">{x.value}</p>
+            </div>
+          ))}
+        </section>
+      )}
 
       {scheme.interest_rate == null && scheme.interest_tiers && scheme.interest_tiers.length > 0 && (
         <p className="mt-4 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600">

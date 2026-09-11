@@ -51,6 +51,7 @@ export interface Scheme {
   document_keys: string[]
   application_mode?: string | null
   finance_percentage?: number | null
+  is_loan?: boolean | null
   rules?: { key: string; value: string; description: string }[]
   supported_partners?: {
     id: number

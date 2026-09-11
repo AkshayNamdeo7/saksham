@@ -31,6 +31,8 @@ export default function SchemeCard({
     education: t('eligibility.purposeEducation'),
   }[scheme.purpose]
 
+  const isSupport = scheme.is_loan === false
+
   return (
     <div className="card flex flex-col p-5 transition hover:border-brand-300 hover:shadow-elevated">
       <div className="flex items-start justify-between gap-2">
@@ -54,10 +56,17 @@ export default function SchemeCard({
       <div className="mt-2 flex flex-wrap gap-1.5">
         <Badge tone="blue">{categoryLabel}</Badge>
         <Badge tone="slate">{purposeLabel}</Badge>
+        {isSupport && <Badge tone="blue">Support program</Badge>}
         {scheme.verification_status === 'verified' && (
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
             <ShieldCheck className="h-3 w-3" aria-hidden />
             {scheme.source_name || 'Verified'}
+          </span>
+        )}
+        {scheme.verification_status === 'needs_review' && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+            <ShieldCheck className="h-3 w-3" aria-hidden />
+            Needs review
           </span>
         )}
         {scheme.is_demo && <Badge tone="amber">{t('common.demo')}</Badge>}
@@ -66,30 +75,36 @@ export default function SchemeCard({
         {scheme.description}
       </p>
 
-      <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-slate-100 pt-4 text-sm">
-        <div>
-          <dt className="text-[11px] uppercase tracking-wide text-slate-400">
-            {t('schemes.maxLoan')}
-          </dt>
-          <dd className="tnum mt-0.5 font-bold text-navy">{formatLakh(scheme.max_loan)}</dd>
+      {isSupport ? (
+        <div className="mt-4 rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-700">
+          Not a loan — skill/livelihood support programme under official guidelines.
         </div>
-        <div>
-          <dt className="text-[11px] uppercase tracking-wide text-slate-400">
-            {t('schemes.interest')}
-          </dt>
-          <dd className="mt-0.5 font-bold text-slate-800">
-            {formatInterest(scheme.interest_rate, scheme.interest_display, scheme.interest_rate_type)}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-[11px] uppercase tracking-wide text-slate-400">
-            {t('schemes.tenure')}
-          </dt>
-          <dd className="mt-0.5 font-bold text-slate-800">
-            {tenureLabel(scheme.tenure_months)}
-          </dd>
-        </div>
-      </dl>
+      ) : (
+        <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-slate-100 pt-4 text-sm">
+          <div>
+            <dt className="text-[11px] uppercase tracking-wide text-slate-400">
+              {t('schemes.maxLoan')}
+            </dt>
+            <dd className="tnum mt-0.5 font-bold text-navy">{formatLakh(scheme.max_loan)}</dd>
+          </div>
+          <div>
+            <dt className="text-[11px] uppercase tracking-wide text-slate-400">
+              {t('schemes.interest')}
+            </dt>
+            <dd className="mt-0.5 font-bold text-slate-800">
+              {formatInterest(scheme.interest_rate, scheme.interest_display, scheme.interest_rate_type)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-[11px] uppercase tracking-wide text-slate-400">
+              {t('schemes.tenure')}
+            </dt>
+            <dd className="mt-0.5 font-bold text-slate-800">
+              {tenureLabel(scheme.tenure_months)}
+            </dd>
+          </div>
+        </dl>
+      )}
 
       <div className="mt-auto flex items-center justify-between gap-2 pt-4">
         <Link

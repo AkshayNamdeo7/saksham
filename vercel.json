@@ -18,9 +18,13 @@
       }
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "source": "/(.*)",
       "destination": {
-        "service": "web"
+        "service": "web",
+        "path": "index.html"
       }
     }
   ]

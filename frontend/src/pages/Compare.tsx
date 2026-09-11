@@ -22,10 +22,11 @@ export default function Compare() {
   const rows = useMemo(() => {
     const base = [
       { key: 'purpose', label: 'Purpose', get: (s: any) => s.purpose?.replace(/_/g, ' ') || '—' },
-      { key: 'max_loan', label: t('schemes.maxLoan'), get: (s: any) => formatLakh(s.max_loan) },
-      { key: 'interest_rate', label: t('schemes.interest'), get: (s: any) => formatInterest(s.interest_rate, s.interest_display, s.interest_rate_type) },
-      { key: 'tenure_months', label: t('schemes.tenure'), get: (s: any) => tenureLabel(s.tenure_months) },
-      { key: 'moratorium_months', label: t('recommendation.moratorium'), get: (s: any) => tenureLabel(s.moratorium_months) },
+      { key: 'is_loan', label: 'Type', get: (s: any) => (s.is_loan === false ? 'Support programme' : 'Loan') },
+      { key: 'max_loan', label: t('schemes.maxLoan'), get: (s: any) => (s.is_loan === false ? 'N/A' : formatLakh(s.max_loan)) },
+      { key: 'interest_rate', label: t('schemes.interest'), get: (s: any) => (s.is_loan === false ? 'N/A' : formatInterest(s.interest_rate, s.interest_display, s.interest_rate_type)) },
+      { key: 'tenure_months', label: t('schemes.tenure'), get: (s: any) => (s.is_loan === false ? 'N/A' : tenureLabel(s.tenure_months)) },
+      { key: 'moratorium_months', label: t('recommendation.moratorium'), get: (s: any) => (s.is_loan === false ? 'N/A' : tenureLabel(s.moratorium_months)) },
       { key: 'income_threshold', label: 'Income threshold', get: (s: any) => (s.income_threshold ? formatLakh(s.income_threshold) : '—') },
       { key: 'partner_required', label: 'Partner required', get: (s: any) => (s.partner_required ? 'Yes' : 'No') },
     ]
