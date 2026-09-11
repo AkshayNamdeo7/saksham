@@ -80,13 +80,13 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-2.5 lg:flex">
           <LanguageSwitcher />
           <NavLink
             to="/admin"
-            className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+            className="focus-ring inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900"
           >
-            <LayoutDashboard className="h-4 w-4" aria-hidden />
+            <LayoutDashboard className="h-4 w-4 text-slate-500" aria-hidden />
             {t('nav.admin')}
           </NavLink>
         </div>
