@@ -169,21 +169,21 @@ export default function SchemeDetail() {
 
           {scheme.income_threshold && (
             <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
-              Demo income threshold: <span className="tnum font-semibold text-slate-800">₹{scheme.income_threshold.toLocaleString('en-IN')}</span>
+              Income threshold: <span className="tnum font-semibold text-slate-800">₹{scheme.income_threshold.toLocaleString('en-IN')}</span>
             </p>
           )}
 
           {scheme.project_min !== null && scheme.project_max !== null && (
             <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
-              Demo project band: <span className="tnum font-semibold text-slate-800">{formatLakh(scheme.project_min)} – {formatLakh(scheme.project_max)}</span>
+              Project cost band: <span className="tnum font-semibold text-slate-800">{formatLakh(scheme.project_min)} – {formatLakh(scheme.project_max)}</span>
             </p>
           )}
 
           <h2 className="mt-6 text-base font-bold text-slate-900">{t('schemeDetail.partnerReq')}</h2>
           <p className="mt-2 text-sm text-slate-600">
             {scheme.partner_required
-              ? 'A channel partner is normally required to process this loan (demo).'
-              : 'No channel partner required for this demo scheme.'}
+              ? 'A channel partner is normally required to process this loan.'
+              : 'No channel partner required for this scheme.'}
           </p>
         </section>
 
@@ -217,7 +217,7 @@ export default function SchemeDetail() {
 
       {scheme.supported_partners && scheme.supported_partners.length > 0 && (
         <section className="card mt-6 p-6">
-          <h2 className="text-base font-bold text-slate-900">Demo channel partners</h2>
+          <h2 className="text-base font-bold text-slate-900">Channel partners</h2>
           <div className="mt-3 flex flex-wrap gap-2">
             {scheme.supported_partners.slice(0, 6).map((p) => (
               <span key={p.id} className="badge-slate">{p.name}</span>

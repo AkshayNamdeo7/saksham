@@ -20,7 +20,6 @@ import { useFetch } from '../hooks/useFetch'
 import { api } from '../services/api'
 import { formatLakh, formatPercent, tenureLabel } from '../utils/format'
 import SchemeCard from '../components/cards/SchemeCard'
-import DemoBadge from '../components/common/DemoBadge'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -43,15 +42,15 @@ export default function Home() {
   ]
 
   const categories = [
-    { icon: <Store className="h-5 w-5" />, label: t('home.catMicro'), desc: 'Small projects up to demo ₹1.4 lakh band' },
-    { icon: <TrendingUp className="h-5 w-5" />, label: t('home.catTerm'), desc: 'Larger expansion, demo up to ₹50 lakh' },
+    { icon: <Store className="h-5 w-5" />, label: t('home.catMicro'), desc: 'Small projects, typically up to a ₹1.4 lakh band' },
+    { icon: <TrendingUp className="h-5 w-5" />, label: t('home.catTerm'), desc: 'Larger expansion, up to ₹50 lakh' },
     { icon: <GraduationCap className="h-5 w-5" />, label: t('home.catEdu'), desc: 'Education loans for courses and colleges' },
     { icon: <ShieldCheck className="h-5 w-5" />, label: t('home.catSelf'), desc: 'Self-employment and skill-to-enterprise' },
   ]
 
   const faqs = [
     { q: 'Do I need to login to check eligibility?', a: 'No. The public eligibility flow works without any login.' },
-    { q: 'Are these figures official?', a: 'No — this is a prototype with demo data. Verify all values with official guidelines before applying.' },
+    { q: 'Are these figures official?', a: 'Saksham shows sourced scheme information and links every scheme to its official source. Always verify figures against the latest official guidelines before applying.' },
     { q: 'What makes a recommendation?', a: 'A deterministic rule engine scoring purpose, income, project size and loan limits, then a plain-language explanation.' },
   ]
 
@@ -82,16 +81,16 @@ export default function Home() {
               </Link>
             </div>
             <div className="mt-6 flex items-center gap-2 text-xs text-slate-400">
-              <DemoBadge subtle />
-              <span>Official figures must be verified.</span>
+              <ShieldCheck className="h-4 w-4 text-emerald-300" aria-hidden />
+              <span>Verified source data — always confirm against official guidelines.</span>
             </div>
           </div>
 
-          {/* Dashboard mockup */}
+          {/* Preview */}
           <div className="relative">
             <div className="rounded-2xl border border-white/10 bg-white/95 p-5 shadow-2xl backdrop-blur">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <p className="text-sm font-semibold text-slate-900">Your demo snapshot</p>
+                <p className="text-sm font-semibold text-slate-900">Your match, at a glance</p>
                 <span className="badge-green">Eligible</span>
               </div>
               <div className="mt-4 space-y-3">
@@ -108,13 +107,10 @@ export default function Home() {
                   <span className="tnum text-sm font-bold text-slate-900">₹4,024 / mo</span>
                 </div>
                 <div className="flex items-center justify-between rounded-xl bg-slate-50 px-3.5 py-3">
-                  <span className="text-xs text-slate-500">Nearby partner</span>
-                  <span className="text-sm font-bold text-slate-900">Bhopal · 2 km</span>
+                  <span className="text-xs text-slate-500">Channel partner</span>
+                  <span className="text-sm font-bold text-slate-900">Eligible nearby partner</span>
                 </div>
               </div>
-            </div>
-            <div className="mx-4 -mt-3 flex justify-between rounded-xl bg-amber-100 px-4 py-2.5 text-xs font-medium text-amber-800">
-              <span>Demo journey: SC beneficiary · ₹2.4L income · Bhopal</span>
             </div>
           </div>
         </div>
@@ -195,8 +191,8 @@ export default function Home() {
         <div className="container-app">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="section-title">Demo schemes</h2>
-              <p className="section-sub">Sample schemes available on this prototype.</p>
+              <h2 className="section-title">Popular schemes</h2>
+              <p className="section-sub">A look at the schemes available on Saksham.</p>
             </div>
             <Link to="/schemes" className="btn-secondary">
               {t('home.ctaExplore')}

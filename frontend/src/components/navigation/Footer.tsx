@@ -28,7 +28,7 @@ export default function Footer() {
               <span className="text-lg font-extrabold text-navy">Saksham</span>
             </div>
             <p className="mt-3 max-w-xs text-sm text-slate-500">
-              {t('brand.tagline')}. {t('common.demoNotice')}
+              {t('brand.tagline')}
             </p>
           </div>
 
@@ -49,14 +49,14 @@ export default function Footer() {
 
         <div className="mt-10 space-y-3 border-t border-slate-100 pt-6 text-xs text-slate-400">
           <p className="flex items-start gap-2">
-            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" aria-hidden />
-            {t('common.demoNotice')} Scheme eligibility, interest rates, loan limits, partner
-            availability and documentation requirements should be verified against the latest
-            official guidelines before applying.
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" aria-hidden />
+            Scheme eligibility, interest rates, loan limits, partner availability and
+            documentation requirements may change. Always verify against the latest official
+            guidelines before applying.
           </p>
           <p>
-            © {new Date().getFullYear()} Saksham (prototype). Built for Smart India Hackathon
-            demonstration. No government affiliation is implied.
+            © {new Date().getFullYear()} Saksham. Built for Smart India Hackathon. No government
+            affiliation is implied.
           </p>
         </div>
       </div>

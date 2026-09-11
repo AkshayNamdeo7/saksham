@@ -15,7 +15,6 @@ import { Field, Select } from '../components/common/Inputs'
 import PartnerCard from '../components/cards/PartnerCard'
 import LoadingState from '../components/common/LoadingState'
 import ErrorState from '../components/common/ErrorState'
-import DemoBadge from '../components/common/DemoBadge'
 import MapPanel from '../components/map/MapPanel'
 import { cls } from '../utils/format'
 
@@ -103,7 +102,6 @@ export default function Partners() {
           <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{t('partners.title')}</h1>
           <p className="mt-2 text-slate-500">{t('partners.subtitle')}</p>
         </div>
-        <DemoBadge />
       </div>
 
       <div className="mt-6 grid gap-4 rounded-2xl bg-white p-4 shadow-card sm:grid-cols-3">
@@ -176,7 +174,6 @@ export default function Partners() {
 
               <p className="flex items-center gap-2 text-sm font-semibold text-slate-700">
                 {filtered.length} {filtered.length === 1 ? 'partner' : 'partners'}
-                <span className="badge-slate">{t('common.demo')}</span>
               </p>
 
               {filtered.length === 0 ? (

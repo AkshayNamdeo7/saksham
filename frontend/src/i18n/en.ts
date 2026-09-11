@@ -28,15 +28,14 @@ export default {
     search: 'Search',
     close: 'Close',
     notProvided: 'Not provided',
-    demo: 'Prototype / Demo Data',
+    demo: 'Sample data',
     officialVerify: 'Official Verification Required',
     demoNotice:
-      'This is prototype data for demonstration purposes. Verify against official guidelines before applying.',
+      'Always verify scheme details against the latest official guidelines before applying.',
   },
   home: {
-    heroTitle: 'Find the right financial support for your next step.',
-    heroSubtitle:
-      'Discover suitable schemes, estimate repayment, and find an eligible nearby channel partner — all in one place.',
+    heroTitle: 'Find the Right Scheme for You',
+    heroSubtitle: 'Check eligibility, compare schemes, and plan your next step.',
     ctaCheck: 'Check My Eligibility',
     ctaExplore: 'Explore Schemes',
     journeyTitle: 'Your journey, guided step by step',
@@ -61,7 +60,7 @@ export default {
     impactTitle: 'From information to action.',
     impactDesc: 'Better awareness. Less confusion. Better routing. Faster next steps.',
     categoriesTitle: 'Scheme categories',
-    categoriesSubtitle: 'Demo scheme types available on this prototype platform.',
+    categoriesSubtitle: 'Browse schemes across the categories covered by Saksham.',
     catMicro: 'Micro Finance',
     catTerm: 'Term Loan',
     catEdu: 'Educational Loan',
@@ -102,9 +101,9 @@ export default {
     start: 'Start Check',
     reviewDesc:
       'Review your answers, then generate your recommendations. The matching engine evaluates purpose, income, project/course and location deterministically.',
-    demoScenario: 'Try the demo scenario',
+    demoScenario: 'Try a sample profile',
     demoScenarioDesc:
-      'Annual income ₹2,40,000 · Small manufacturing · Cost ₹1,20,000 · Bhopal',
+      'Annual income ₹2,40,000 · Small manufacturing · Cost ₹1,20,000',
   },
   recommendation: {
     title: 'Your personalised results',
@@ -113,7 +112,7 @@ export default {
     matchScore: 'Match Score',
     why: 'Why this matches you',
     snapshot: 'Financial snapshot',
-    indicative: 'Indicative / Demo — subject to official scheme guidelines',
+    indicative: 'Indicative figures — verify against the official scheme page',
     documents: 'What you may need',
     nextSteps: 'What to do next',
     confidence: 'Recommendation confidence',
@@ -133,7 +132,7 @@ export default {
     lastVerified: 'Last verified',
     viewOfficial: 'View Official Scheme',
     applyOfficial: 'Apply on Official Portal',
-    demoData: 'Prototype / Demo Data',
+    demoData: 'Sample data',
     verifiedSource: 'Verified source',
     officialVerifyNote: 'Always verify the latest eligibility, financial terms and documents on the official government source before applying.',
     applicationRouteNote: 'Application route varies by scheme/agency. Verify on the official scheme page.',
@@ -143,7 +142,7 @@ export default {
     financialTermsNote: 'Financial terms require verification on the official scheme page.',
     otherSchemes: 'Other Suitable Schemes',
     noFinancialData: 'Financial data not available — check the official source.',
-    showingDemo: 'Showing demo scheme data',
+    showingDemo: 'Showing sample scheme data',
     profilePurpose: 'Purpose',
     profileIncome: 'Income',
     profileLocation: 'Location',
@@ -152,7 +151,7 @@ export default {
   },
   schemes: {
     title: 'Scheme Explorer',
-    subtitle: 'Browse demo schemes and filters.',
+    subtitle: 'Browse schemes and filter by purpose, category, or amount.',
     search: 'Search schemes…',
     allPurpose: 'All purposes',
     allCategory: 'All categories',
@@ -172,7 +171,7 @@ export default {
   schemeDetail: {
     overview: 'Overview',
     whoMaySuit: 'Who it may suit',
-    eligibility: 'Demo eligibility criteria',
+    eligibility: 'Eligibility criteria',
     financing: 'Maximum financing',
     interest: 'Indicative interest',
     tenure: 'Tenure',
@@ -208,7 +207,7 @@ export default {
   },
   partners: {
     title: 'Partner Locator',
-    subtitle: 'Find eligible channel partners for your scheme (demo data).',
+    subtitle: 'Find eligible channel partners for your scheme.',
     recommended: 'Recommended Partner',
     score: 'Routing Score',
     why: 'Why this partner',
@@ -232,11 +231,11 @@ export default {
     placeholder: 'Type your question…',
     send: 'Send',
     suggested: 'Suggested questions',
-    demoKey: 'Demo extraction',
+    demoKey: 'Sample extraction',
   },
   documents: {
     title: 'Document Checklist',
-    subtitle: 'Scheme-specific document requirements (demo).',
+    subtitle: 'Scheme-specific document requirements.',
     required: 'Required',
     optional: 'Optional',
     why: 'Why it may be required',
@@ -254,7 +253,7 @@ export default {
   },
   about: {
     title: 'About Saksham',
-    subtitle: 'A prototype platform for a Smart India Hackathon.',
+    subtitle: 'Discover suitable schemes, compare your options, and plan your next step.',
   },
   footer: {
     about: 'About',
@@ -263,7 +262,7 @@ export default {
     terms: 'Terms',
     disclaimer: 'Disclaimer',
     contact: 'Contact',
-    prototype: 'Prototype Data Notice',
+    prototype: 'Data Notice',
   },
   status: {
     eligible: 'Eligible',

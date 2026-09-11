@@ -8,7 +8,6 @@ export default function Assistant() {
       <div className="text-center">
         <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{t('assistant.title')}</h1>
         <p className="mt-2 text-slate-500">{t('assistant.subtitle')}</p>
-        <p className="mt-2 text-xs text-amber-700">{t('common.demoNotice')}</p>
       </div>
       <div className="mt-8">
         <ChatWindow standalone />

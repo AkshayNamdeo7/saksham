@@ -7,7 +7,6 @@ import { CheckCircle2, HelpCircle } from 'lucide-react'
 import LoadingState from '../components/common/LoadingState'
 import ErrorState from '../components/common/ErrorState'
 import { Field, Select } from '../components/common/Inputs'
-import DemoBadge from '../components/common/DemoBadge'
 
 export default function Documents() {
   const { t, i18n } = useTranslation()
@@ -29,7 +28,6 @@ export default function Documents() {
         <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{t('documents.title')}</h1>
         <p className="mt-2 text-slate-500">{t('documents.subtitle')}</p>
       </div>
-      <div className="mt-2 flex justify-center"><DemoBadge subtle /></div>
 
       <div className="card mt-8 p-6">
         <Field label="Scheme" id="doc-scheme" required>
@@ -52,7 +50,7 @@ export default function Documents() {
       <div className="mt-6">
         {!schemeId && (
           <div className="card p-8 text-center text-sm text-slate-400">
-            Select a scheme to see its demo document checklist.
+            Select a scheme to see its document checklist.
           </div>
         )}
         {loading && <LoadingState rows={4} />}

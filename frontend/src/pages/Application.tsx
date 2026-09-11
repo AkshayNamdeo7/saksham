@@ -13,7 +13,6 @@ import { useProfile } from '../context/ProfileContext'
 import LoadingState from '../components/common/LoadingState'
 import ErrorState from '../components/common/ErrorState'
 import Badge from '../components/common/Badge'
-import DemoBadge from '../components/common/DemoBadge'
 import { formatINR } from '../utils/format'
 import { formatInterest } from '../utils/format'
 
@@ -50,7 +49,7 @@ export default function Application() {
   function downloadSummary() {
     if (!scheme) return
     const lines = [
-      'SAKSHAM — Recommendation Summary (Prototype/Demo)',
+      'SAKSHAM — Recommendation Summary',
       '-----------------------------------------------',
       `Scheme: ${scheme.name}`,
       `Category: ${scheme.category} | Purpose: ${scheme.purpose}`,
@@ -64,7 +63,7 @@ export default function Application() {
       top ? `- Routing score: ${top.total_score}/100` : '',
       '',
       'Official Verification Required:',
-      'This is prototype data for demonstration. Verify all figures against official scheme guidelines before applying.',
+      'Always verify all figures and eligibility against the latest official scheme guidelines before applying.',
     ]
     const blob = new Blob([lines.join('\n')], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
@@ -81,7 +80,6 @@ export default function Application() {
         <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{t('application.title')}</h1>
         <p className="mt-2 text-slate-500">{t('application.subtitle')}</p>
       </div>
-      <div className="mt-2 flex justify-center"><DemoBadge subtle /></div>
 
       {!scheme && (
         <div className="card mt-10 flex flex-col items-center gap-4 p-10 text-center">
@@ -197,7 +195,7 @@ export default function Application() {
                 </div>
               </div>
             ) : (
-              !loading && <p className="mt-4 text-sm text-slate-400">No partner determined for this demo scenario.</p>
+              !loading && <p className="mt-4 text-sm text-slate-400">No partner determined for this profile yet.</p>
             )}
           </div>
 
@@ -213,7 +211,7 @@ export default function Application() {
                   <span key={k} className="badge-slate">{k.replace(/_/g, ' ')}</span>
                 ))
               ) : (
-                <p className="text-sm text-slate-500">Aadhaar, caste certificate, income certificate, bank details, project report (demo).</p>
+                <p className="text-sm text-slate-500">Aadhaar, caste certificate, income certificate, bank details, project report.</p>
               )}
             </div>
             <div className="mt-3">
