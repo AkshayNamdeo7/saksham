@@ -35,6 +35,17 @@ export function formatPercent(value: number | null | undefined): string {
   return `${value.toFixed(1).replace(/\.0$/, '')}%`
 }
 
+export function formatInterest(
+  interestRate: number | null | undefined,
+  interestDisplay?: string | null,
+  interestRateType?: string | null,
+): string {
+  if (interestDisplay) return interestDisplay
+  if (interestRate != null && !isNaN(interestRate)) return `${formatPercent(interestRate)} p.a.`
+  if (interestRateType === 'tiered') return 'Tiered — check official source for applicable rate'
+  return 'Not specified in current official source'
+}
+
 export function tenureLabel(months: number): string {
   if (months >= 12 && months % 12 === 0) {
     const y = months / 12

@@ -18,7 +18,7 @@ import LoadingState from '../components/common/LoadingState'
 import ErrorState from '../components/common/ErrorState'
 import Badge from '../components/common/Badge'
 import DemoBadge from '../components/common/DemoBadge'
-import { formatLakh, formatPercent, tenureLabel } from '../utils/format'
+import { formatLakh, formatInterest, tenureLabel } from '../utils/format'
 
 export default function SchemeDetail() {
   const { id } = useParams()
@@ -65,8 +65,16 @@ export default function SchemeDetail() {
             {scheme.verification_status === 'verified' && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
                 <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-                {scheme.source_name || 'Verified source'}
+                Official source verified
+                {scheme.source_name && <span className="text-emerald-500"> · {scheme.source_name}</span>}
                 {scheme.last_verified && <span className="text-emerald-500"> · {scheme.last_verified}</span>}
+              </span>
+            )}
+            {scheme.verification_status === 'needs_review' && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
+                <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+                Official source — verification recommended
+                {scheme.last_verified && <span className="text-amber-500"> · {scheme.last_verified}</span>}
               </span>
             )}
             {scheme.is_demo && <DemoBadge subtle />}
@@ -115,7 +123,7 @@ export default function SchemeDetail() {
       <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { icon: Wallet, label: t('schemeDetail.financing'), value: formatLakh(scheme.max_loan) },
-          { icon: Landmark, label: t('schemeDetail.interest'), value: `${formatPercent(scheme.interest_rate)} p.a.` },
+          { icon: Landmark, label: t('schemeDetail.interest'), value: formatInterest(scheme.interest_rate, scheme.interest_display, scheme.interest_rate_type) },
           { icon: CheckCircle2, label: t('schemeDetail.tenure'), value: tenureLabel(scheme.tenure_months) },
           { icon: HelpCircle, label: t('schemeDetail.moratorium'), value: tenureLabel(scheme.moratorium_months) },
         ].map((x) => (
@@ -128,6 +136,12 @@ export default function SchemeDetail() {
           </div>
         ))}
       </section>
+
+      {scheme.interest_rate == null && scheme.interest_tiers && scheme.interest_tiers.length > 0 && (
+        <p className="mt-4 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          Interest varies by applicable loan/channel tier.
+        </p>
+      )}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <section className="card p-6">

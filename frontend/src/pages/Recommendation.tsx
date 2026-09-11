@@ -17,7 +17,7 @@ import RecommendationCard from '../components/cards/RecommendationCard'
 import LoadingState from '../components/common/LoadingState'
 import ErrorState from '../components/common/ErrorState'
 import Badge from '../components/common/Badge'
-import { formatLakh, formatPercent } from '../utils/format'
+import { formatLakh, formatInterest } from '../utils/format'
 
 export default function Recommendation() {
   const { t } = useTranslation()
@@ -56,13 +56,16 @@ export default function Recommendation() {
           category: res.results[0].category,
           purpose: res.results[0].purpose,
           max_loan: res.results[0].max_loan,
-          min_loan: 0,
+          min_loan: res.results[0].min_loan ?? 0,
           interest_rate: res.results[0].interest_rate,
+          interest_rate_type: res.results[0].interest_rate_type,
+          interest_tiers: res.results[0].interest_tiers,
+          interest_display: res.results[0].interest_display,
+          project_min: res.results[0].project_min ?? null,
+          project_max: res.results[0].project_max ?? null,
           tenure_months: res.results[0].tenure_months,
           moratorium_months: res.results[0].moratorium_months,
           income_threshold: res.results[0].income_threshold,
-          project_min: null,
-          project_max: null,
           education_focus: res.results[0].purpose === 'education',
           eligibility_notes: '',
           required_documents: '',
@@ -207,7 +210,7 @@ export default function Recommendation() {
               <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {[
                   { label: t('recommendation.maxLoan'), value: formatLakh(best.max_loan) },
-                  best.interest_rate > 0 && { label: t('recommendation.interest'), value: formatPercent(best.interest_rate) },
+                  { label: t('recommendation.interest'), value: formatInterest(best.interest_rate, best.interest_display, best.interest_rate_type) },
                   best.tenure_months > 0 && { label: t('recommendation.tenure'), value: `${best.tenure_months} months` },
                   best.moratorium_months > 0 && { label: t('recommendation.moratorium'), value: `${best.moratorium_months} months` },
                 ].filter(Boolean).map((x: any) => (

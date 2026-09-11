@@ -1,4 +1,5 @@
 import type {
+  AssistantResponse,
   ChatMessage,
   DocumentItem,
   LoanResult,
@@ -181,11 +182,7 @@ export const api = {
   },
   assistant: {
     chat: (payload: { message: string; language: string; history: ChatMessage[] }) =>
-      request<{
-        message: string
-        language: string
-        suggestions: { key: string; en: string; hi: string }[]
-      }>('/api/assistant/chat', {
+      request<AssistantResponse>('/api/assistant/chat', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),

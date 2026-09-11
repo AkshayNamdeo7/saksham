@@ -15,6 +15,7 @@ import ErrorState from '../components/common/ErrorState'
 import Badge from '../components/common/Badge'
 import DemoBadge from '../components/common/DemoBadge'
 import { formatINR } from '../utils/format'
+import { formatInterest } from '../utils/format'
 
 export default function Application() {
   const { t } = useTranslation()
@@ -53,8 +54,8 @@ export default function Application() {
       '-----------------------------------------------',
       `Scheme: ${scheme.name}`,
       `Category: ${scheme.category} | Purpose: ${scheme.purpose}`,
-      `Max loan (demo): ${formatINR(scheme.max_loan)}`,
-      `Indicative rate: ${scheme.interest_rate}% p.a.`,
+      `Max loan: ${formatINR(scheme.max_loan)}`,
+      `Interest: ${formatInterest(scheme.interest_rate, scheme.interest_display, scheme.interest_rate_type)}`,
       `Tenure: ${scheme.tenure_months} months`,
       `Loan required: ${loanRequired ? formatINR(loanRequired) : '—'}`,
       '',
@@ -105,11 +106,26 @@ export default function Application() {
                 <p className="text-lg font-bold text-navy">{scheme.name}</p>
                 <p className="text-xs text-slate-500">{scheme.category} · {scheme.purpose}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Link to={`/schemes/${scheme.id}`} className="btn-secondary text-xs">Details</Link>
                 <Link to={`/calculator?scheme=${scheme.id}`} className="btn-secondary text-xs">EMI</Link>
+                {scheme.official_scheme_url || scheme.source_url ? (
+                  <a
+                    href={scheme.official_scheme_url || scheme.source_url || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary text-xs"
+                  >
+                    Official source
+                  </a>
+                ) : null}
               </div>
             </div>
+            {!scheme.official_apply_url && !scheme.application_mode && (
+              <p className="mt-3 text-xs text-amber-700">
+                Application route should be verified with the official source/channelizing agency.
+              </p>
+            )}
           </div>
 
           {/* Step 2: requirement */}
@@ -126,8 +142,10 @@ export default function Application() {
                 </p>
               </div>
               <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-[11px] uppercase tracking-wide text-slate-400">Interest (demo)</p>
-                <p className="tnum mt-1 text-lg font-bold text-slate-900">{scheme.interest_rate}% p.a.</p>
+                <p className="text-[11px] uppercase tracking-wide text-slate-400">Interest</p>
+                <p className="tnum mt-1 text-sm font-bold leading-snug text-slate-900">
+                  {formatInterest(scheme.interest_rate, scheme.interest_display, scheme.interest_rate_type)}
+                </p>
               </div>
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-[11px] uppercase tracking-wide text-slate-400">Purpose</p>

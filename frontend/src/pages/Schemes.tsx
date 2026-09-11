@@ -13,6 +13,15 @@ import { formatINR } from '../utils/format'
 
 const LOAN_BUCKETS = ['25000', '50000', '100000', '250000', '500000', '1000000']
 
+const CATEGORY_LABELS: Record<string, (t: (k: string) => string) => string> = {
+  business: () => 'Business',
+  education: () => 'Education',
+  support: () => 'Skill / Support',
+  sanitation_enterprise: () => 'Sanitation Enterprise',
+  micro_finance: (t) => t('home.catMicro'),
+  term_loan: (t) => t('home.catTerm'),
+}
+
 export default function Schemes() {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
@@ -23,6 +32,18 @@ export default function Schemes() {
   const [compareIds, setCompareIds] = useState<number[]>([])
 
   const { data, loading, error, reload } = useFetch(() => api.schemes.list(), [])
+
+  const categoryOptions = useMemo(() => {
+    const seen = new Set<string>()
+    const opts: { value: string; label: string }[] = []
+    for (const s of data || []) {
+      if (!s.category || seen.has(s.category)) continue
+      seen.add(s.category)
+      const label = CATEGORY_LABELS[s.category]?.(t) ?? s.category.replace(/_/g, ' ')
+      opts.push({ value: s.category, label })
+    }
+    return opts
+  }, [data, t])
 
   const filtered = useMemo(() => {
     let list = data || []
@@ -86,11 +107,7 @@ export default function Schemes() {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             placeholder={t('schemes.allCategory')}
-            options={[
-              { value: 'micro_finance', label: t('home.catMicro') },
-              { value: 'term_loan', label: t('home.catTerm') },
-              { value: 'education', label: t('home.catEdu') },
-            ]}
+            options={categoryOptions}
           />
         </Field>
         <Field label={t('schemes.minLoan')} id="sch_minloan">

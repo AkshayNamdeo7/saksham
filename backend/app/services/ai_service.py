@@ -94,12 +94,20 @@ class AIService:
 
     def _call_llm_chat(self, messages: list[dict], language: str) -> str:
         system = (
-            "You are Saksham Assistant, helping marginalized entrepreneurs understand "
-            "government concessional loan schemes. Give simple, clear, empathetic guidance. "
-            "NEVER invent official eligibility or financial figures — refer the user to "
-            "verified scheme data. Respond in "
-            + ("Hindi" if language == "hi" else "English")
-            + "."
+            "You are Saksham Assistant, helping marginalized entrepreneurs and students "
+            "understand government concessional loan and support schemes.\n\n"
+            "CRITICAL RULES:\n"
+            "- NEVER invent loan amounts, interest rates, eligibility criteria, documents, "
+            "or approval probability.\n"
+            "- Financial and eligibility facts MUST come from the official scheme database. "
+            "If information is missing, say 'Please verify before applying.'\n"
+            "- If a scheme's data is marked needs_review, say clearly: "
+            "'Source is official, but some details require manual verification.'\n"
+            "- Support schemes (PM-DAKSH, PM-AJAY) are NOT loans. Do not call them loans.\n"
+            "- For tiered interest rates, do NOT assume a flat rate. Direct users to check "
+            "the official scheme page.\n"
+            "- Keep responses simple, practical, step-by-step.\n"
+            "- Respond in " + ("Hindi" if language == "hi" else "English") + "."
         )
         full = [{"role": "system", "content": system}] + messages[-8:]
         return self._chat_completions(full, language=language)
@@ -176,6 +184,50 @@ def extract_profile_from_text(text: str) -> dict:
         extracted["project_type"] = "sewing/tailoring"
     elif re.search(r"auto|ride", lower):
         extracted["project_type"] = "auto/transport"
+
+    # social category
+    cat_match = re.search(
+        r"\b(sc|st|obc|ebc|general|gen|अनुसूचित जाति|अनुसूचित जनजाति|अन्य पिछड़ा वर्ग|सामान्य)\b",
+        lower,
+    )
+    if cat_match:
+        cat_val = cat_match.group(1)
+        cat_map = {
+            "sc": "SC", "st": "ST", "obc": "OBC", "ebc": "EBC",
+            "general": "General", "gen": "General",
+            "अनुसूचित जाति": "SC", "अनुसूचित जनजाति": "ST",
+            "अन्य पिछड़ा वर्ग": "OBC", "सामान्य": "General",
+        }
+        extracted["category"] = cat_map.get(cat_val)
+
+    # age
+    age_match = re.search(r"(\d{1,3})\s*(?:years?|yr|साल|वर्ष|yo|age|आयु|उम्र)", text, re.IGNORECASE)
+    if age_match:
+        age = int(age_match.group(1))
+        if 18 <= age <= 100:
+            extracted["age"] = age
+
+    # gender
+    if re.search(r"\b(female|woman|women|girl|महिला|औरत|लड़की)\b", lower):
+        extracted["gender"] = "female"
+    elif re.search(r"\b(male|man|men|boy|पुरुष|आदमी|लड़का)\b", lower):
+        extracted["gender"] = "male"
+
+    # income
+    inc_match = re.search(
+        r"(\d[\d,]*(?:\.\d+)?)\s*(lakh|lakhs|लाख|lac|crore|करोड़|thousand|हजार|k)?\s*(?:income|annual|salary|कमाई|आय|वेतन)",
+        lower,
+    )
+    if inc_match:
+        value = float(inc_match.group(1).replace(",", ""))
+        unit = (inc_match.group(2) or "").lower()
+        if unit in ("lakh", "lakhs", "लाख", "lac"):
+            value *= 100000
+        elif unit in ("crore", "करोड़"):
+            value *= 10000000
+        elif unit in ("thousand", "हजार", "k"):
+            value *= 1000
+        extracted["annual_family_income"] = round(value)
 
     return extracted
 

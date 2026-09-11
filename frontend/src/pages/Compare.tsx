@@ -5,7 +5,7 @@ import { useFetch } from '../hooks/useFetch'
 import { api } from '../services/api'
 import LoadingState from '../components/common/LoadingState'
 import EmptyState from '../components/common/EmptyState'
-import { formatLakh, formatPercent, tenureLabel, cls } from '../utils/format'
+import { formatLakh, formatInterest, tenureLabel, cls } from '../utils/format'
 
 export default function Compare() {
   const { t } = useTranslation()
@@ -23,7 +23,7 @@ export default function Compare() {
     const base = [
       { key: 'purpose', label: 'Purpose', get: (s: any) => s.purpose?.replace(/_/g, ' ') || '—' },
       { key: 'max_loan', label: t('schemes.maxLoan'), get: (s: any) => formatLakh(s.max_loan) },
-      { key: 'interest_rate', label: t('schemes.interest'), get: (s: any) => formatPercent(s.interest_rate) },
+      { key: 'interest_rate', label: t('schemes.interest'), get: (s: any) => formatInterest(s.interest_rate, s.interest_display, s.interest_rate_type) },
       { key: 'tenure_months', label: t('schemes.tenure'), get: (s: any) => tenureLabel(s.tenure_months) },
       { key: 'moratorium_months', label: t('recommendation.moratorium'), get: (s: any) => tenureLabel(s.moratorium_months) },
       { key: 'income_threshold', label: 'Income threshold', get: (s: any) => (s.income_threshold ? formatLakh(s.income_threshold) : '—') },

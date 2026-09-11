@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Send } from 'lucide-react'
+import { CheckCircle2, ExternalLink, Send, ShieldAlert, X } from 'lucide-react'
 import type { ChatMessage } from '../../types'
 import { api } from '../../services/api'
 
@@ -8,8 +8,6 @@ const SUGGESTIONS = [
   { key: 'scheme', en: 'Which scheme may suit me?', hi: 'कौन सी योजना मेरे लिए उपयुक्त हो सकती है?' },
   { key: 'documents', en: 'What documents might I need?', hi: 'मुझे कौन से दस्तावेज़ चाहिए?' },
   { key: 'emi', en: 'How can I estimate my EMI?', hi: 'मैं अपनी EMI का अनुमान कैसे लगाऊं?' },
-  { key: 'partner', en: 'How do I find a channel partner?', hi: 'मुझे चैनल पार्टनर कैसे मिलेगा?' },
-  { key: 'why', en: 'Why was this scheme recommended?', hi: 'यह योजना क्यों अनुशंसित की गई?' },
 ]
 
 export default function ChatWindow({
@@ -26,8 +24,8 @@ export default function ChatWindow({
       role: 'assistant',
       content:
         lang === 'hi'
-          ? 'नमस्ते! मैं सक्षम सहायक हूँ। मैं आपकी योजना खोजने, EMI अनुमान और पार्टनर ढूंढने में मदद कर सकता हूँ।'
-          : 'Namaste! I am the Saksham assistant. I can help you find schemes, estimate EMI, and locate partners.',
+          ? 'नमस्ते! मैं सक्षम सहायक हूँ। बताएं आपको किस चीज़ में मदद चाहिए — व्यवसाय ऋण, शिक्षा ऋण, कौशल प्रशिक्षण, या अन्य सरकारी सहायता?'
+          : 'Namaste! I am the Saksham assistant. Tell me what you need help with — a business loan, education loan, skill training, or other government support.',
     },
   ])
   const [input, setInput] = useState('')
@@ -51,7 +49,14 @@ export default function ChatWindow({
         language: lang,
         history: next,
       })
-      setMessages([...next, { role: 'assistant', content: res.message }])
+      const reply: ChatMessage = {
+        role: 'assistant',
+        content: res.message,
+        structured: res.structured ?? undefined,
+        step: res.step ?? undefined,
+        totalSteps: res.total_steps ?? undefined,
+      }
+      setMessages([...next, reply])
     } catch {
       setMessages([
         ...next,
@@ -90,27 +95,14 @@ export default function ChatWindow({
             className="rounded-lg p-1.5 text-white/80 hover:bg-white/10"
             aria-label={t('common.close')}
           >
-            ✕
+            <X className="h-4 w-4" />
           </button>
         )}
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
         {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                m.role === 'user'
-                  ? 'bg-brand-700 text-white'
-                  : 'border border-slate-200 bg-white text-slate-700'
-              }`}
-            >
-              {m.content}
-            </div>
-          </div>
+          <MessageBubble key={i} message={m} lang={lang} />
         ))}
         {busy && (
           <div className="flex items-center gap-1.5 text-slate-400">
@@ -167,6 +159,104 @@ export default function ChatWindow({
           <Send className="h-4 w-4" aria-hidden />
         </button>
       </form>
+    </div>
+  )
+}
+
+function MessageBubble({ message, lang }: { message: ChatMessage; lang: string }) {
+  if (message.role === 'user') {
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl bg-brand-700 px-3.5 py-2.5 text-sm leading-relaxed text-white">
+          {message.content}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex justify-start">
+      <div className="max-w-[92%] space-y-2 rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed text-slate-700">
+        {message.step !== undefined && (
+          <StepBadge step={message.step} total={message.totalSteps ?? 7} lang={lang} />
+        )}
+        <p className="whitespace-pre-wrap">{message.content}</p>
+        {message.structured && message.structured.length > 0 && (
+          <div className="space-y-2 pt-2">
+            {message.structured.map((card) => (
+              <SchemeResultCard key={card.scheme_slug} card={card} lang={lang} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function StepBadge({ step, total, lang }: { step: number; total: number; lang: string }) {
+  return (
+    <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-medium text-brand-700">
+      <span className="h-1.5 w-1.5 rounded-full bg-brand-600" />
+      {lang === 'hi' ? `चरण ${step}/${total}` : `Step ${step}/${total}`}
+    </div>
+  )
+}
+
+function SchemeResultCard({ card, lang }: { card: NonNullable<ChatMessage['structured']>[number]; lang: string }) {
+  const verified = card.data_confidence === 'verified'
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-[13px] font-semibold text-slate-800">{card.scheme_name}</p>
+        <span className="ml-2 shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+          {card.match_score}%
+        </span>
+      </div>
+
+      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+        {verified ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+            <CheckCircle2 className="h-3 w-3" /> Verified
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+            <ShieldAlert className="h-3 w-3" /> Needs review
+          </span>
+        )}
+        {card.interest_display && (
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">
+            {card.interest_display}
+          </span>
+        )}
+        {card.max_loan != null && card.max_loan > 0 && (
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">
+            ₹{card.max_loan.toLocaleString('en-IN')}
+          </span>
+        )}
+      </div>
+
+      {card.reasons.length > 0 && (
+        <ul className="mt-2 space-y-0.5">
+          {card.reasons.slice(0, 3).map((r, i) => (
+            <li key={i} className="flex items-start gap-1.5 text-[12px] text-slate-600">
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-500" />
+              <span>{r}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {card.official_scheme_url && (
+        <a
+          href={card.official_scheme_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-brand-700 hover:text-brand-800 hover:underline"
+        >
+          <ExternalLink className="h-3 w-3" />
+          {lang === 'hi' ? 'आधिकारिक स्रोत देखें' : 'Official source'}
+        </a>
+      )}
     </div>
   )
 }

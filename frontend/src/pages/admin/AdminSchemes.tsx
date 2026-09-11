@@ -155,7 +155,7 @@ export default function AdminSchemes() {
                 <td className="px-4 py-3 text-slate-500">{s.category}</td>
                 <td className="px-4 py-3 text-slate-500">{s.purpose}</td>
                 <td className="tnum px-4 py-3 text-slate-700">{formatINR(s.max_loan)}</td>
-                <td className="tnum px-4 py-3 text-slate-700">{s.interest_rate}%</td>
+                <td className="tnum px-4 py-3 text-slate-700">{s.interest_rate != null ? `${s.interest_rate}%` : '—'}</td>
                 <td className="px-4 py-3">
                   <Badge tone={s.active ? 'green' : 'red'} dot>{s.active ? 'Active' : 'Inactive'}</Badge>
                 </td>

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { CheckCircle2, ExternalLink, Info, ShieldCheck, TriangleAlert, XCircle } from 'lucide-react'
 import type { RecommendationResult } from '../../types'
 import Badge from '../common/Badge'
+import { formatInterest, formatLakh } from '../../utils/format'
 
 const STATUS_META = {
   eligible: { tone: 'green' as const, icon: CheckCircle2 },
@@ -25,6 +26,8 @@ export default function RecommendationCard({
   const isNeedsReview = result.verification_status === 'needs_review'
   const hasOfficialSource = !!(result.official_scheme_url || result.source_url)
 
+  const interestText = formatInterest(result.interest_rate, result.interest_display, result.interest_rate_type)
+
   return (
     <article
       className={`card relative p-6 ${rank === 1 ? 'ring-2 ring-brand-600' : ''}`}
@@ -44,25 +47,21 @@ export default function RecommendationCard({
         {isVerified && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-            {result.source_name || t('recommendation.verifiedSource')}
+            Official source verified
+            {result.source_name && <span className="text-emerald-600"> — {result.source_name}</span>}
             {result.last_verified && (
-              <span className="text-emerald-500">· {t('recommendation.lastVerified')}: {result.last_verified}</span>
-            )}
-          </span>
-        )}
-        {isNeedsReview && result.source_name && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-            <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-            {result.source_name}
-            {result.last_verified && (
-              <span className="text-blue-500">· {t('recommendation.lastVerified')}: {result.last_verified}</span>
+              <span className="text-emerald-500"> · {result.last_verified}</span>
             )}
           </span>
         )}
         {isNeedsReview && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
             <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
-            {t('recommendation.officialVerifyRequired')}
+            Official source — verification recommended
+            {result.source_name && <span className="text-amber-600"> ({result.source_name})</span>}
+            {result.last_verified && (
+              <span className="text-amber-500"> · {result.last_verified}</span>
+            )}
           </span>
         )}
       </div>
@@ -71,9 +70,9 @@ export default function RecommendationCard({
         <div className="space-y-4">
           {result.reasons.length > 0 && (
             <div>
-              <p className="text-sm font-semibold text-slate-700">{t('recommendation.why')}</p>
+              <p className="text-sm font-semibold text-slate-700">Why this scheme?</p>
               <ul className="mt-2 space-y-1.5">
-                {result.reasons.slice(0, 4).map((r) => (
+                {result.reasons.slice(0, 5).map((r) => (
                   <li key={r} className="flex items-start gap-2 text-sm text-slate-600">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" aria-hidden />
                     {r}
@@ -100,6 +99,28 @@ export default function RecommendationCard({
             </div>
           )}
 
+          {result.verification_items && result.verification_items.length > 0 && (
+            <div className="rounded-xl bg-blue-50 p-3">
+              {result.verification_items.map((v) => (
+                <p key={v} className="flex items-start gap-2 text-sm text-blue-700">
+                  <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                  {v}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {result.financing_summary && result.financing_summary.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Financing details</p>
+              <ul className="mt-1.5 space-y-1">
+                {result.financing_summary.map((f) => (
+                  <li key={f} className="text-sm text-slate-600">{f}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {result.matched.length > 0 && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t('recommendation.matchedCriteria')}</p>
@@ -113,9 +134,13 @@ export default function RecommendationCard({
               </ul>
             </div>
           )}
+
+          {result.recommendation_note && (
+            <p className="text-xs text-slate-500 italic">{result.recommendation_note}</p>
+          )}
         </div>
 
-        <div className="flex shrink-0 flex-col gap-2 lg:w-40">
+        <div className="flex shrink-0 flex-col gap-2 lg:w-48">
           {result.max_loan > 0 ? (
             <>
               <div>
@@ -123,23 +148,29 @@ export default function RecommendationCard({
                   {t('recommendation.maxLoan')}
                 </p>
                 <p className="tnum text-lg font-bold text-navy">
-                  ₹{result.max_loan.toLocaleString('en-IN')}
+                  {formatLakh(result.max_loan)}
                 </p>
               </div>
-              {result.interest_rate > 0 && (
-                <div>
-                  <p className="text-[11px] uppercase tracking-wide text-slate-400">
-                    {t('recommendation.interest')}
-                  </p>
-                  <p className="tnum font-semibold text-slate-800">{result.interest_rate}% p.a.</p>
-                </div>
-              )}
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-slate-400">
+                  {t('recommendation.interest')}
+                </p>
+                <p className="tnum font-semibold text-slate-800">{interestText}</p>
+              </div>
               {result.tenure_months > 0 && (
                 <div>
                   <p className="text-[11px] uppercase tracking-wide text-slate-400">
                     {t('recommendation.tenure')}
                   </p>
                   <p className="tnum font-semibold text-slate-800">{result.tenure_months} months</p>
+                </div>
+              )}
+              {result.moratorium_months > 0 && (
+                <div>
+                  <p className="text-[11px] uppercase tracking-wide text-slate-400">
+                    {t('recommendation.moratorium')}
+                  </p>
+                  <p className="tnum font-semibold text-slate-800">{result.moratorium_months} months</p>
                 </div>
               )}
             </>
@@ -181,7 +212,7 @@ export default function RecommendationCard({
               </a>
             ) : (
               <p className="w-full pt-1 text-xs text-slate-400">
-                {t('recommendation.applicationRouteNote')}
+                Application route should be verified with the official source/channelizing agency.
               </p>
             )}
           </>

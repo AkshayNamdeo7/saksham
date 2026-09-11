@@ -8,7 +8,10 @@ import Button from '../components/common/Button'
 import { api } from '../services/api'
 import { useFetch } from '../hooks/useFetch'
 import type { LoanResult } from '../types'
-import DemoBadge from '../components/common/DemoBadge'
+import { formatInterest } from '../utils/format'
+
+const UNSPECIFIED_RATE_MESSAGE =
+  'Accurate EMI cannot be calculated because the applicable interest rate is not sufficiently specified.'
 
 export default function Calculator() {
   const { t } = useTranslation()
@@ -18,8 +21,17 @@ export default function Calculator() {
   const { data: schemes } = useFetch(() => api.schemes.list(), [])
   const scheme = schemes?.find((s) => s.id === Number(schemeId)) || null
 
-  const [principal, setPrincipal] = useState(scheme ? Math.min(scheme.max_loan, 140000) : 120000)
-  const [rate, setRate] = useState(scheme ? scheme.interest_rate : 4.0)
+  const hasKnownRate = !!scheme && scheme.interest_rate != null && !isNaN(scheme.interest_rate)
+
+  // A tiered scheme with a single unambiguous applicable tier can be safely
+  // defaulted; otherwise the rate is left blank so we never invent one.
+  const defaultRate = hasKnownRate
+    ? scheme!.interest_rate!
+    : 0
+  const hasTieredRate = !!scheme && scheme.interest_rate == null && (scheme.interest_tiers || []).length > 0
+
+  const [principal, setPrincipal] = useState(scheme ? Math.min(scheme.max_loan || 0, 140000) : 120000)
+  const [rate, setRate] = useState<number | ''>(defaultRate || '')
   const [tenure, setTenure] = useState(scheme ? scheme.tenure_months : 36)
   const [tenureUnit, setTenureUnit] = useState<'months' | 'years'>('months')
   const [moratorium, setMoratorium] = useState(scheme ? scheme.moratorium_months : 0)
@@ -27,17 +39,16 @@ export default function Calculator() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (scheme) {
-      setRate(scheme.interest_rate)
-      setMoratorium(scheme.moratorium_months)
-      setTenure(scheme.tenure_months)
-    }
-  }, [scheme])
-
-  async function calc() {
-    if (!principal || principal <= 0 || rate < 0 || !tenure || tenure <= 0) {
+  async function calc(rateOverride?: number) {
+    if (!principal || principal <= 0 || !tenure || tenure <= 0) {
       setError('Enter valid positive values first.')
+      return
+    }
+    const annualRate =
+      rateOverride !== undefined ? rateOverride : rate === '' ? null : Number(rate)
+    if (annualRate === null || isNaN(annualRate) || annualRate < 0) {
+      setError(UNSPECIFIED_RATE_MESSAGE)
+      setResult(null)
       return
     }
     setLoading(true)
@@ -45,7 +56,7 @@ export default function Calculator() {
     try {
       const res = await api.calculator.emi({
         principal,
-        annual_rate: rate,
+        annual_rate: annualRate,
         tenure,
         tenure_unit: tenureUnit,
         moratorium_months: moratorium,
@@ -54,15 +65,22 @@ export default function Calculator() {
       setResult(res)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Calculation failed')
+      setResult(null)
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    calc()
+    if (!scheme) return
+    const known = scheme.interest_rate != null && !isNaN(scheme.interest_rate)
+    setPrincipal(Math.min(scheme.max_loan || 0, 140000))
+    setMoratorium(scheme.moratorium_months)
+    setTenure(scheme.tenure_months || 36)
+    setRate(known ? (scheme.interest_rate as number) : '')
+    if (known) calc(scheme.interest_rate as number)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [scheme])
 
   const pieData = useMemo(() => {
     if (!result) return []
@@ -79,9 +97,18 @@ export default function Calculator() {
       {scheme && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-brand-50 px-4 py-3">
           <p className="text-sm text-brand-900">
-            {t('calculator.calcFromScheme', { name: scheme.name })} · {t('recommendation.indicative')}
+            {t('calculator.calcFromScheme', { name: scheme.name })}
+            {!hasKnownRate && (
+              <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+                {hasTieredRate ? 'Tiered rate — verify applicable tier' : UNSPECIFIED_RATE_MESSAGE}
+              </span>
+            )}
           </p>
-          <DemoBadge subtle />
+          {hasKnownRate && (
+            <span className="text-xs font-medium text-brand-800">
+              {formatInterest(scheme!.interest_rate, scheme!.interest_display, scheme!.interest_rate_type)}
+            </span>
+          )}
         </div>
       )}
 
@@ -100,15 +127,15 @@ export default function Calculator() {
                 placeholder="120000"
               />
             </Field>
-            <Field label={`${t('calculator.annualRate')}`} required>
+            <Field label={`${t('calculator.annualRate')}`} hint={hasTieredRate ? 'Scheme has a tiered rate — leave blank unless you know the exact applicable rate.' : undefined}>
               <Input
                 type="number"
                 min={0}
                 max={50}
                 step={0.25}
                 value={rate}
-                onChange={(e) => setRate(Number(e.target.value))}
-                placeholder="4.0"
+                onChange={(e) => setRate(e.target.value === '' ? '' : Number(e.target.value))}
+                placeholder={hasKnownRate ? undefined : 'Rate not specified'}
               />
             </Field>
             <div className="grid grid-cols-2 gap-3">
@@ -140,11 +167,15 @@ export default function Calculator() {
                 onChange={(e) => setMoratorium(Number(e.target.value))}
               />
             </Field>
-            <Button onClick={calc} loading={loading} fullWidth>
+            <Button onClick={() => calc()} loading={loading} fullWidth>
               <CalcIcon className="h-4 w-4" aria-hidden />
               Calculate
             </Button>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && (
+              <p className={`text-sm ${error === UNSPECIFIED_RATE_MESSAGE ? 'text-amber-700' : 'text-red-600'}`}>
+                {error}
+              </p>
+            )}
           </div>
         </div>
 
@@ -160,7 +191,9 @@ export default function Calculator() {
           )}
 
           {!result && !loading && (
-            <div className="card flex items-center justify-center p-16 text-slate-400">—</div>
+            <div className="card flex items-center justify-center p-16 text-center text-slate-400">
+              {rate === '' ? UNSPECIFIED_RATE_MESSAGE : '—'}
+            </div>
           )}
 
           {result && (

@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ArrowRight, CheckSquare, ShieldCheck, Square } from 'lucide-react'
 import type { Scheme } from '../../types'
-import { formatLakh, formatPercent, tenureLabel, cls } from '../../utils/format'
+import { formatLakh, formatInterest, tenureLabel, cls } from '../../utils/format'
 import Badge from '../common/Badge'
 
 export default function SchemeCard({
@@ -20,7 +20,10 @@ export default function SchemeCard({
     micro_finance: t('home.catMicro'),
     term_loan: t('home.catTerm'),
     education: t('home.catEdu'),
-  }[scheme.category]
+    business: t('eligibility.purposeBusiness'),
+    support: 'Skill / Support',
+    sanitation_enterprise: 'Sanitation Enterprise',
+  }[scheme.category] ?? scheme.category.replace(/_/g, ' ')
 
   const purposeLabel = {
     business: t('eligibility.purposeBusiness'),
@@ -75,7 +78,7 @@ export default function SchemeCard({
             {t('schemes.interest')}
           </dt>
           <dd className="mt-0.5 font-bold text-slate-800">
-            {formatPercent(scheme.interest_rate)}
+            {formatInterest(scheme.interest_rate, scheme.interest_display, scheme.interest_rate_type)}
           </dd>
         </div>
         <div>
