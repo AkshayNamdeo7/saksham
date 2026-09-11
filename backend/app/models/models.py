@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     Column,
     DateTime,
@@ -41,7 +42,7 @@ class Scheme(Base):
     purpose = Column(String(100), nullable=False)  # business / self_employment / education
     max_loan = Column(Float, nullable=False, default=0)
     min_loan = Column(Float, nullable=False, default=0)
-    interest_rate = Column(Float, nullable=False, default=0)
+    interest_rate = Column(Float, nullable=True)
     tenure_months = Column(Integer, nullable=False, default=0)
     moratorium_months = Column(Integer, nullable=False, default=0)
     income_threshold = Column(Float, nullable=True)
@@ -53,6 +54,36 @@ class Scheme(Base):
     partner_required = Column(Boolean, default=True)
     active = Column(Boolean, default=True)
     is_demo = Column(Boolean, default=True)
+    # Canonical official-source fields (source of truth for the import)
+    short_name = Column(String(200), nullable=True)
+    provider = Column(String(200), nullable=True)
+    sub_category = Column(String(100), nullable=True)
+    target_groups = Column(JSON, nullable=True)
+    occupation_groups = Column(JSON, nullable=True)
+    gender_rule = Column(String(50), nullable=True)
+    age_min = Column(Integer, nullable=True)
+    age_max = Column(Integer, nullable=True)
+    income_limit = Column(Float, nullable=True)
+    state_scope = Column(JSON, nullable=True)
+    district_scope = Column(JSON, nullable=True)
+    education_requirements = Column(String(200), nullable=True)
+    course_type = Column(JSON, nullable=True)
+    business_sectors = Column(JSON, nullable=True)
+    project_cost_min = Column(Float, nullable=True)
+    project_cost_max = Column(Float, nullable=True)
+    min_loan_amount = Column(Float, nullable=True)
+    max_loan_amount = Column(Float, nullable=True)
+    finance_percentage = Column(Float, nullable=True)
+    beneficiary_contribution_percentage = Column(Float, nullable=True)
+    interest_rate_type = Column(String(50), nullable=True)
+    interest_tiers = Column(JSON, nullable=True)
+    moratorium = Column(String(100), nullable=True)
+    repayment_period = Column(String(100), nullable=True)
+    repayment_unit = Column(String(50), nullable=True)
+    application_mode = Column(String(100), nullable=True)
+    official = Column(Boolean, default=False)
+    data_confidence = Column(String(50), nullable=True)
+    is_loan = Column(Boolean, default=True)
     # Source metadata
     source_name = Column(String(200), nullable=True)
     source_url = Column(String(500), nullable=True)

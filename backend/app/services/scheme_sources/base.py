@@ -46,6 +46,38 @@ class NormalizedScheme:
     rules: list[tuple[str, str, str]] = field(default_factory=list)
     document_keys: list[str] = field(default_factory=list)
 
+    # Canonical official-source fields; the importer derives legacy columns
+    # (max_loan, interest_rate, tenure_months, ...) from these where present.
+    short_name: str = ""
+    provider: str = ""
+    sub_category: str | None = None
+    target_groups: list[str] = field(default_factory=list)
+    occupation_groups: list[str] = field(default_factory=list)
+    gender_rule: str | None = None
+    age_min: int | None = None
+    age_max: int | None = None
+    income_limit: float | None = None
+    state_scope: list[str] = field(default_factory=list)
+    district_scope: list[str] = field(default_factory=list)
+    education_requirements: str | None = None
+    course_type: list[str] = field(default_factory=list)
+    business_sectors: list[str] = field(default_factory=list)
+    project_cost_min: float | None = None
+    project_cost_max: float | None = None
+    min_loan_amount: float | None = None
+    max_loan_amount: float | None = None
+    finance_percentage: float | None = None
+    beneficiary_contribution_percentage: float | None = None
+    interest_rate_type: str | None = None
+    interest_tiers: list[dict] = field(default_factory=list)
+    moratorium: str | None = None
+    repayment_period: str | None = None
+    repayment_unit: str | None = None
+    application_mode: str | None = None
+    official: bool = True
+    data_confidence: str = "verified"
+    is_loan: bool = True
+
 
 class SchemeSourceAdapter(ABC):
     """Base class for all official-source adapters."""

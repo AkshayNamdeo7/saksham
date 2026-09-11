@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -22,6 +24,18 @@ def check_eligibility(payload: EligibilityCheckRequest, db: Session = Depends(ge
         education_level=payload.education_level,
         course_type=payload.course_type,
         requested_loan=payload.requested_loan,
+        result_summary=json.dumps(
+            {
+                "gender": payload.gender,
+                "category": payload.category,
+                "occupation": payload.occupation,
+                "business_sector": payload.business_sector,
+                "business_type": payload.business_type,
+                "business_goal": payload.business_goal,
+                "education_location": payload.education_location,
+                "marks": payload.marks,
+            }
+        ),
     )
     db.add(rec)
     db.flush()

@@ -7,11 +7,11 @@ class SchemeBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=200)
     slug: str = Field(..., min_length=2, max_length=200)
     description: str = ""
-    category: str = Field(..., description="micro_finance|term_loan|education")
+    category: str = Field(..., description="business|education|support")
     purpose: str = Field(..., description="business|self_employment|education")
     max_loan: float = Field(ge=0)
     min_loan: float = Field(ge=0)
-    interest_rate: float = Field(ge=0, le=100)
+    interest_rate: Optional[float] = Field(default=None, ge=0, le=100)
     tenure_months: int = Field(ge=0)
     moratorium_months: int = Field(ge=0)
     income_threshold: Optional[float] = Field(default=None, ge=0)
@@ -23,6 +23,36 @@ class SchemeBase(BaseModel):
     partner_required: bool = True
     active: bool = True
     is_demo: bool = True
+    # Canonical official-source fields
+    short_name: Optional[str] = None
+    provider: Optional[str] = None
+    sub_category: Optional[str] = None
+    target_groups: Optional[list[str]] = None
+    occupation_groups: Optional[list[str]] = None
+    gender_rule: Optional[str] = None
+    age_min: Optional[int] = Field(default=None, ge=0)
+    age_max: Optional[int] = Field(default=None, ge=0)
+    income_limit: Optional[float] = Field(default=None, ge=0)
+    state_scope: Optional[list[str]] = None
+    district_scope: Optional[list[str]] = None
+    education_requirements: Optional[str] = None
+    course_type: Optional[list[str]] = None
+    business_sectors: Optional[list[str]] = None
+    project_cost_min: Optional[float] = Field(default=None, ge=0)
+    project_cost_max: Optional[float] = Field(default=None, ge=0)
+    min_loan_amount: Optional[float] = Field(default=None, ge=0)
+    max_loan_amount: Optional[float] = Field(default=None, ge=0)
+    finance_percentage: Optional[float] = Field(default=None, ge=0, le=100)
+    beneficiary_contribution_percentage: Optional[float] = Field(default=None, ge=0, le=100)
+    interest_rate_type: Optional[str] = None
+    interest_tiers: Optional[list[dict]] = None
+    moratorium: Optional[str] = None
+    repayment_period: Optional[str] = None
+    repayment_unit: Optional[str] = None
+    application_mode: Optional[str] = None
+    official: bool = False
+    data_confidence: Optional[str] = None
+    is_loan: bool = True
     source_name: Optional[str] = None
     source_url: Optional[str] = None
     official_scheme_url: Optional[str] = None
@@ -54,6 +84,35 @@ class SchemeUpdate(BaseModel):
     required_documents: Optional[str] = None
     partner_required: Optional[bool] = None
     active: Optional[bool] = None
+    short_name: Optional[str] = None
+    provider: Optional[str] = None
+    sub_category: Optional[str] = None
+    target_groups: Optional[list[str]] = None
+    occupation_groups: Optional[list[str]] = None
+    gender_rule: Optional[str] = None
+    age_min: Optional[int] = Field(default=None, ge=0)
+    age_max: Optional[int] = Field(default=None, ge=0)
+    income_limit: Optional[float] = Field(default=None, ge=0)
+    state_scope: Optional[list[str]] = None
+    district_scope: Optional[list[str]] = None
+    education_requirements: Optional[str] = None
+    course_type: Optional[list[str]] = None
+    business_sectors: Optional[list[str]] = None
+    project_cost_min: Optional[float] = Field(default=None, ge=0)
+    project_cost_max: Optional[float] = Field(default=None, ge=0)
+    min_loan_amount: Optional[float] = Field(default=None, ge=0)
+    max_loan_amount: Optional[float] = Field(default=None, ge=0)
+    finance_percentage: Optional[float] = Field(default=None, ge=0, le=100)
+    beneficiary_contribution_percentage: Optional[float] = Field(default=None, ge=0, le=100)
+    interest_rate_type: Optional[str] = None
+    interest_tiers: Optional[list[dict]] = None
+    moratorium: Optional[str] = None
+    repayment_period: Optional[str] = None
+    repayment_unit: Optional[str] = None
+    application_mode: Optional[str] = None
+    official: Optional[bool] = None
+    data_confidence: Optional[str] = None
+    is_loan: Optional[bool] = None
     source_name: Optional[str] = None
     source_url: Optional[str] = None
     official_scheme_url: Optional[str] = None
@@ -142,7 +201,10 @@ class EligibilityCheckRequest(BaseModel):
     district: Optional[str] = None
     city: Optional[str] = None
     annual_family_income: Optional[float] = Field(default=None, ge=0)
-    purpose: str = Field(..., description="business|self_employment|education")
+    purpose: str = Field(
+        ...,
+        description="business|self_employment|business_expansion|equipment|working_capital|education|skill_training",
+    )
     project_type: Optional[str] = None
     project_cost: Optional[float] = Field(default=None, ge=0)
     education_level: Optional[str] = None
@@ -150,13 +212,46 @@ class EligibilityCheckRequest(BaseModel):
     institution_type: Optional[str] = None
     education_cost: Optional[float] = Field(default=None, ge=0)
     requested_loan: Optional[float] = Field(default=None, ge=0)
+    gender: Optional[str] = Field(
+        default=None, description="male|female|other"
+    )
+    category: Optional[str] = Field(
+        default=None, description="social category, e.g. SC, ST, OBC, EBC, General"
+    )
+    occupation: Optional[str] = Field(
+        default=None, description="occupation, e.g. Safai Karamchari, sanitation worker"
+    )
+    business_sector: Optional[str] = Field(
+        default=None, description="business sector, e.g. Agriculture & Allied"
+    )
+    business_type: Optional[str] = Field(
+        default=None, description="business type, e.g. proprietorship, SHG"
+    )
+    business_goal: Optional[str] = Field(
+        default=None, description="business goal, e.g. start, expand, equipment"
+    )
+    education_location: Optional[str] = Field(
+        default=None, description="India|Abroad (course location)"
+    )
+    marks: Optional[float] = Field(default=None, ge=0)
 
     @field_validator("purpose")
     @classmethod
     def validate_purpose(cls, v):
-        allowed = {"business", "self_employment", "education"}
+        allowed = {
+            "business",
+            "self_employment",
+            "business_expansion",
+            "equipment",
+            "working_capital",
+            "education",
+            "skill_training",
+        }
         if v not in allowed:
-            raise ValueError("purpose must be one of business, self_employment, education")
+            raise ValueError(
+                "purpose must be one of business, self_employment, business_expansion, "
+                "equipment, working_capital, education, skill_training"
+            )
         return v
 
 

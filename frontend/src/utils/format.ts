@@ -30,7 +30,8 @@ export function parseCurrencyInput(value: string): number | undefined {
   return parseFloat(cleaned)
 }
 
-export function formatPercent(value: number): string {
+export function formatPercent(value: number | null | undefined): string {
+  if (value === null || value === undefined || isNaN(value)) return '—'
   return `${value.toFixed(1).replace(/\.0$/, '')}%`
 }
 

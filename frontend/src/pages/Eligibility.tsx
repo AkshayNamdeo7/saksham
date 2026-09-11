@@ -70,6 +70,7 @@ export default function Eligibility() {
 
   const [step, setStep] = useState(0)
   const [saving, setSaving] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [form, setForm] = useState<LocalForm>(INITIAL_FORM)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -119,16 +120,19 @@ export default function Eligibility() {
 
   function next() {
     if (!validate(step)) return
+    setSubmitError(null)
     setStep((s) => Math.min(s + 1, STEPS - 1))
   }
 
   function back() {
+    setSubmitError(null)
     setStep((s) => Math.max(s - 1, 0))
   }
 
   async function submit() {
     if (!validate(step)) return
     setSaving(true)
+    setSubmitError(null)
     try {
       const profile: Profile = {
         age: form.age === '' ? undefined : Number(form.age),
@@ -150,8 +154,12 @@ export default function Eligibility() {
       await api.eligibility.check(profile)
       setProfileData(profile)
       expectsubmit(profile)
-    } catch {
-      /* handled by caller */
+    } catch (e) {
+      setSubmitError(
+        e instanceof Error && e.message
+          ? e.message
+          : 'The eligibility check failed. Please try again.',
+      )
     } finally {
       setSaving(false)
     }
@@ -407,6 +415,12 @@ export default function Eligibility() {
 
       <div className="card mt-8 p-6 sm:p-8">
         {stepContent}
+
+        {submitError && (
+          <p role="alert" className="mt-6 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {submitError}
+          </p>
+        )}
 
         <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-5">
           <Button variant="ghost" onClick={back} disabled={step === 0}>

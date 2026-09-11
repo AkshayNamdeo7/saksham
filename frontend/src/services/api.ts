@@ -12,26 +12,40 @@ import type {
 
 const BASE = import.meta.env.VITE_API_URL || ''
 
+const REQUEST_TIMEOUT_MS = 30_000
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options?.headers || {}),
-    },
-    ...options,
-  })
-  if (!res.ok) {
-    let detail = `Request failed (${res.status})`
-    try {
-      const body = await res.json()
-      if (body?.detail) detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
-    } catch {
-      /* ignore */
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  try {
+    const res = await fetch(`${BASE}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options?.headers || {}),
+      },
+      signal: controller.signal,
+    })
+    if (!res.ok) {
+      let detail = `Request failed (${res.status})`
+      try {
+        const body = await res.json()
+        if (body?.detail) detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
+      } catch {
+        /* ignore */
+      }
+      throw new Error(detail)
     }
-    throw new Error(detail)
+    if (res.status === 204) return undefined as T
+    return res.json() as Promise<T>
+  } catch (e) {
+    if (e instanceof Error && e.name === 'AbortError') {
+      throw new Error(`Request timed out after ${REQUEST_TIMEOUT_MS / 1000} seconds. Please try again.`)
+    }
+    throw e
+  } finally {
+    clearTimeout(timeoutId)
   }
-  if (res.status === 204) return undefined as T
-  return res.json() as Promise<T>
 }
 
 interface RawScoredPartner {

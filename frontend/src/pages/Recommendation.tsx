@@ -93,7 +93,10 @@ export default function Recommendation() {
   }
 
   useEffect(() => {
-    if (profileData && !results) run()
+    // A fresh navigation from the eligibility form always recomputes
+    // recommendations for the incoming profile, even when older results
+    // are cached (e.g. in localStorage from a previous session).
+    if (profileData && (incoming || !results)) run()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -1,13 +1,13 @@
 import json
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.models import AuditEvent, EligibilityCheck, Recommendation, Scheme
+from app.models import AuditEvent, EligibilityCheck, Recommendation
 from app.schemas.schemas import RecommendRequest
 from app.services.ai_service import ai_service
-from app.services.recommendation_engine import recommend
+from app.services.recommendation_engine import recommend_full
 
 router = APIRouter(tags=["recommendations"])
 
@@ -15,10 +15,21 @@ router = APIRouter(tags=["recommendations"])
 @router.post("")
 def get_recommendations(payload: RecommendRequest, db: Session = Depends(get_db)):
     profile = payload.profile.model_dump()
-    # Always return official (non-demo) schemes for normal users
-    results = recommend(profile, db, payload.scheme_ids, official_only=True)
+    # Always return official (non-demo) schemes for normal users.
+    try:
+        engine = recommend_full(profile, db, payload.scheme_ids, official_only=True)
+    except Exception as exc:  # controlled error — no internals leak to clients
+        raise HTTPException(
+            status_code=400,
+            detail="Recommendations could not be computed. Please try again with "
+            "valid eligibility details.",
+        ) from exc
 
-    # persist eligibility check + top recommendation
+    primary_matches = engine["primary_matches"]
+    complementary_support = engine["complementary_support"]
+
+    # persist eligibility check + top recommendation (extended profile stored as
+    # a JSON summary in the existing result_summary column — no schema change)
     check = EligibilityCheck(
         age=profile.get("age"),
         state=profile.get("state"),
@@ -31,34 +42,28 @@ def get_recommendations(payload: RecommendRequest, db: Session = Depends(get_db)
         education_level=profile.get("education_level"),
         course_type=profile.get("course_type"),
         requested_loan=profile.get("requested_loan"),
+        result_summary=json.dumps(
+            {
+                "gender": profile.get("gender"),
+                "category": profile.get("category"),
+                "occupation": profile.get("occupation"),
+                "business_sector": profile.get("business_sector"),
+                "business_type": profile.get("business_type"),
+                "business_goal": profile.get("business_goal"),
+                "education_location": profile.get("education_location"),
+                "primary_matches": len(primary_matches),
+                "complementary_support": len(complementary_support),
+                "no_match_reason": engine["no_match_reason"],
+            }
+        ),
     )
     db.add(check)
     db.flush()
 
     english_results = []
-    for i, r in enumerate(results[:10]):
+    for i, r in enumerate(primary_matches[:10]):
         if r["match_score"] <= 0:
             continue
-        scheme = db.query(Scheme).filter(Scheme.id == r["scheme_id"]).first()
-        if scheme is None:
-            continue
-        r["scheme_name"] = scheme.name
-        r["scheme_slug"] = scheme.slug
-        r["category"] = scheme.category
-        r["max_loan"] = scheme.max_loan
-        r["interest_rate"] = scheme.interest_rate
-        r["tenure_months"] = scheme.tenure_months
-        r["moratorium_months"] = scheme.moratorium_months
-        r["income_threshold"] = scheme.income_threshold
-        r["purpose"] = scheme.purpose
-        r["is_demo"] = scheme.is_demo
-        r["source_name"] = scheme.source_name
-        r["source_url"] = scheme.source_url
-        r["official_scheme_url"] = scheme.official_scheme_url
-        r["official_apply_url"] = scheme.official_apply_url
-        r["last_verified"] = scheme.last_verified
-        r["source_type"] = scheme.source_type
-        r["verification_status"] = scheme.verification_status
         english_results.append(r)
 
         if i == 0:
@@ -70,7 +75,7 @@ def get_recommendations(payload: RecommendRequest, db: Session = Depends(get_db)
             db.add(
                 Recommendation(
                     eligibility_check_id=check.id,
-                    scheme_id=scheme.id,
+                    scheme_id=r["scheme_id"],
                     match_score=r["match_score"],
                     eligibility_status=r["eligibility_status"],
                     matched_criteria=json.dumps(r["matched"]),
@@ -83,10 +88,16 @@ def get_recommendations(payload: RecommendRequest, db: Session = Depends(get_db)
             )
             r["ai_explanation"] = explanation
 
-    db.add(AuditEvent(event_type="recommendation", payload=f"checks={len(results)}"))
+    db.add(AuditEvent(event_type="recommendation", payload=f"checks={len(primary_matches)}"))
     db.commit()
 
-    return {"profile": profile, "results": english_results}
+    return {
+        "profile": profile,
+        "results": english_results,
+        "primary_matches": english_results,
+        "complementary_support": complementary_support,
+        "no_match_reason": engine["no_match_reason"],
+    }
 
 
 def _build_next_steps(result: dict) -> list[str]:
