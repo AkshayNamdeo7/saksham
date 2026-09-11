@@ -2,7 +2,13 @@
   "services": {
     "web": {
       "root": "frontend/",
-      "framework": "vite"
+      "framework": "vite",
+      "rewrites": [
+        {
+          "source": "/(.*)",
+          "destination": "/index.html"
+        }
+      ]
     },
     "api": {
       "root": "backend/",
@@ -18,13 +24,9 @@
       }
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "source": "/(.*)",
       "destination": {
-        "service": "web",
-        "path": "index.html"
+        "service": "web"
       }
     }
   ]
