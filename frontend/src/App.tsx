@@ -19,6 +19,7 @@ const Assistant = lazy(() => import('./pages/Assistant'))
 const Documents = lazy(() => import('./pages/Documents'))
 const Application = lazy(() => import('./pages/Application'))
 const About = lazy(() => import('./pages/About'))
+const Help = lazy(() => import('./pages/Help'))
 
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/documents" element={withLoader(<Documents />)} />
             <Route path="/application" element={withLoader(<Application />)} />
             <Route path="/about" element={withLoader(<About />)} />
+            <Route path="/help" element={withLoader(<Help />)} />
           </Route>
           <Route path="/admin/login" element={withLoader(<AdminLogin />)} />
           <Route path="/admin" element={withLoader(<AdminLayout />)}>
