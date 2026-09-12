@@ -29,7 +29,7 @@ export default function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <div>
             <div className="flex items-center gap-2">
-              <img src="/logo.jpeg" alt="Saksham logo" className="h-8 w-8 rounded-lg object-cover" />
+              <img src="/logo1.jpeg" alt="Saksham logo" className="h-8 w-8 rounded-lg object-contain" />
               <span className="text-lg font-extrabold text-navy">Saksham</span>
             </div>
             <p className="mt-3 max-w-xs text-sm text-slate-500">

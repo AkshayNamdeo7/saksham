@@ -49,7 +49,7 @@ export default function Header() {
     >
       <div className="container-app flex h-16 items-center justify-between gap-3">
         <NavLink to="/" className="focus-ring flex items-center gap-2.5 rounded-lg" aria-label="Saksham home">
-          <img src="/logo.jpeg" alt="Saksham logo" className="h-9 w-9 rounded-xl object-cover" />
+          <img src="/logo1.jpeg" alt="Saksham logo" className="h-9 w-9 rounded-xl object-contain" />
           <span className="leading-tight">
             <span className="block text-lg font-extrabold tracking-tight text-navy">
               Saksham

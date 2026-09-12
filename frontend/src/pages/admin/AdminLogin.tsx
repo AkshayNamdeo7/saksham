@@ -33,7 +33,7 @@ export default function AdminLogin() {
     <div className="flex min-h-screen items-center justify-center bg-navy px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <img src="/logo.jpeg" alt="Saksham logo" className="mx-auto h-14 w-14 rounded-2xl object-cover" />
+          <img src="/logo1.jpeg" alt="Saksham logo" className="mx-auto h-14 w-14 rounded-2xl object-contain" />
           <h1 className="mt-4 text-2xl font-bold text-white">Saksham Admin</h1>
           <p className="mt-1 text-sm text-slate-400">{t('nav.admin')}</p>
         </div>
