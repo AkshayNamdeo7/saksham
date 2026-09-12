@@ -34,13 +34,20 @@ def is_ready() -> bool:
 
 def _provision() -> None:
     from app.core.config import settings
+    from app.db.migrate import migrate_schema
     from app.db.seed import seed
     from app.db.session import Base, SessionLocal, engine
     from app.models import Scheme
     from app.services.scheme_import import import_official_schemes
 
-    # Tables must exist even when the official dataset is already provisioned.
+    # Order matters:
+    #   1. create missing tables
+    #   2. add columns missing from existing (older) tables — BEFORE any ORM
+    #      query touches the new model columns (fixes UndefinedColumn on a
+    #      pre-migration Neon schema)
+    #   3. then bootstrap data only if no official dataset exists
     Base.metadata.create_all(bind=engine)
+    migrate_schema(engine)
 
     if not settings.SEED_ON_STARTUP:
         logger.info("Database schema ready; SEED_ON_STARTUP=0 skips data bootstrap.")
@@ -59,6 +66,21 @@ def _provision() -> None:
         )
         if not has_official:
             seed(db)
+            import_official_schemes(db)
+        elif (
+            db.query(Scheme)
+            .filter(
+                Scheme.official.is_(True),
+                Scheme.active.is_(True),
+                Scheme.short_name.is_(None),
+            )
+            .count()
+            > 0
+        ):
+            # Official rows predate the current model (schema migration just
+            # added short_name + friends). The idempotent upsert backfills the
+            # canonical fields for those rows without duplicating anything.
+            logger.info("Refreshing legacy official rows with current canonical fields.")
             import_official_schemes(db)
         logger.info("Database provisioned (has_official=%s).", has_official)
     finally:
