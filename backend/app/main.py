@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.config import settings
-from app.db.session import Base, engine
 from app.api.routes import (
     admin_applications,
     admin_auth,
@@ -17,7 +15,8 @@ from app.api.routes import (
     recommendations,
     schemes,
 )
-from app.db.seed import seed
+from app.core.config import settings
+from app.db.init_db import provision_on_startup
 
 app = FastAPI(
     title="Saksham API",
@@ -36,30 +35,12 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup():
-    # Tables must exist even when the official dataset is already provisioned.
-    Base.metadata.create_all(bind=engine)
-    if settings.SEED_ON_STARTUP:
-        from app.db.session import SessionLocal
-        from app.models import Scheme
-
-        db = SessionLocal()
-        try:
-            # Bootstrap only when no active official scheme is present. Once the
-            # official dataset exists in Neon it is left untouched; this keeps
-            # cold starts fast and avoids re-importing on every invocation.
-            has_official = (
-                db.query(Scheme)
-                .filter(Scheme.official.is_(True), Scheme.active.is_(True))
-                .count()
-                > 0
-            )
-            if not has_official:
-                seed(db)
-                from app.services.scheme_import import import_official_schemes
-
-                import_official_schemes(db)
-        finally:
-            db.close()
+    # Best-effort, non-fatal provisioning. Schema creation and the official
+    # dataset bootstrap run here, but a database being temporarily unreachable
+    # during a serverless cold start must never take the API down with
+    # "Application startup failed. Exiting." — the first database request
+    # retries provisioning automatically (see app.db.init_db / get_db).
+    provision_on_startup()
 
 
 @app.get("/")
